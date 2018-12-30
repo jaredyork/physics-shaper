@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta lang="en-us">
+    
+    <title>Physics Shaper</title>
+  
+    <!-- Load CSS -->
+    <link rel="stylesheet" type="text/css" href="css/reset.css">
+    <link rel="stylesheet" type="text/css" href="css/styles.css">
+
+    <!-- Load JavaScript -->
+    <script src="js/lib/phaser.js"></script>
+
+  </head>
+
+  <body>
+    <input type="file" style="display: none;" accept="image/*" id="input-load-image" />
+    <div class="menustrip">
+      <div class="menuitem">
+        <input id="btn-menustrip-file" type="checkbox" class="fake-checkbox">
+        <label for="btn-menustrip-file" class="btn-menuitem">File</label>
+        <div class="menuitem-content">
+          <a href="#">New</a>
+          <a href="#" id="btn-load-image" >Load Image</a>
+          <a href="#">Save</a>
+          <a href="#">Export</a>
+        </div>
+      </div>
+
+      <div class="menuitem">
+        <input id="btn-menustrip-edit" type="checkbox" class="fake-checkbox">
+        <label for="btn-menustrip-edit" class="btn-menuitem">Edit</label>
+        <div class="menuitem-content">
+          <a href="#">Erase Points</a>
+          <a href="#">Clear all points</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="app-wrapper">
+      <!-- Load more JavaScript -->
+      <script src="js/SceneMain.js"></script>
+      <script src="js/main.js"></script>
+    </div>
+  </body>
+</html>
