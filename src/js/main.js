@@ -12,8 +12,6 @@ var config = {
 
 var app = new Phaser.Game(config);
 
-var amountLoadedImages = 0;
-
 function showLoadImageDialog() {
   document.getElementById("input-load-image").click();
 }
@@ -34,13 +32,9 @@ function handleFileSelect(evt) {
       return function(e) {
         var image = e.target.result;
         
-        console.log(image);
-
         console.log("Loaded " + theFile.name);
         app.scene.scenes[0].textures.addBase64("loadedImage" + amountLoadedImages, image);
-        console.log(app.scene.scenes[0].textures.addBase64);
 
-        amountLoadedImages++;
       }
     })(file);
 
@@ -60,6 +54,11 @@ window.addEventListener("resize", function() {
   console.log("resized");
 });
 
+var btnNew = document.getElementById("btn-new");
+btnNew.addEventListener("click", function() {
+  editor.restartScene();
+});
+
 var btnLoadImage = document.getElementById("btn-load-image");
 btnLoadImage.addEventListener("click", function() {
   showLoadImageDialog();
@@ -67,6 +66,21 @@ btnLoadImage.addEventListener("click", function() {
 
 var inputLoadImage = document.getElementById("input-load-image");
 inputLoadImage.addEventListener("change", handleFileSelect, false);
+
+var btnExport = document.getElementById("btn-export");
+btnExport.addEventListener("click", function() {
+  editor.exportJSON(Editor.getExportFormats().PHASER_3);
+});
+
+var btnClearLastPoint = document.getElementById("btn-clear-last-point");
+btnClearLastPoint.addEventListener("click", function() {
+  editor.clearLastPoint();
+});
+
+var btnClearPoints = document.getElementById("btn-clear-points");
+btnClearPoints.addEventListener("click", function() {
+  editor.clearAllPoints();
+});
 
 function onWheelScroll(e) {
 

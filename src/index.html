@@ -22,10 +22,10 @@
         <input id="btn-menustrip-file" type="checkbox" class="fake-checkbox">
         <label for="btn-menustrip-file" class="btn-menuitem">File</label>
         <div class="menuitem-content">
-          <a href="#">New</a>
+          <a href="#" id="btn-new">New</a>
           <a href="#" id="btn-load-image" >Load Image</a>
           <a href="#">Save</a>
-          <a href="#">Export</a>
+          <a href="#" id="btn-export">Export</a>
         </div>
       </div>
 
@@ -33,16 +33,29 @@
         <input id="btn-menustrip-edit" type="checkbox" class="fake-checkbox">
         <label for="btn-menustrip-edit" class="btn-menuitem">Edit</label>
         <div class="menuitem-content">
-          <a href="#">Erase Points</a>
-          <a href="#">Clear all points</a>
+          <a href="#" id="btn-clear-last-point">Erase last point</a>
+          <a href="#" id="btn-clear-points">Clear all points</a>
+        </div>
+      </div>
+
+      <div class="menuitem">
+        <input id="btn-menustrip-view" type="checkbox" class="fake-checkbox">
+        <label for="btn-menustrip-view" class="btn-menuitem">View</label>
+        <div class="menuitem-content">
+          <a href="#">Toggle pixel grid</a>
         </div>
       </div>
     </div>
 
     <div class="app-wrapper">
       <!-- Load more JavaScript -->
+      <script src="js/globals.js"></script>
       <script src="js/SceneMain.js"></script>
       <script src="js/main.js"></script>
+    </div>
+
+    <div class="overlay-export">
+      <textarea id="export-json"></textarea>
     </div>
   </body>
 </html>

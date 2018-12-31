@@ -1,5 +1,5 @@
 body {
-  background: #e9e9e9;
+  background: #888;
   font-family: Helvetica, arial, sans-serif;
 
   -webkit-touch-callout: none; /* iOS Safari */
@@ -55,7 +55,6 @@ body {
 }
 
 #app-canvas {
-  background: blue;
   display: block;
   width: 100%;
   height: calc(100vh - 32px);
