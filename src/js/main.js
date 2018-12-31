@@ -112,16 +112,11 @@ for (var i = 0; i < btnMenuItems.length; i++) {
 }
 
 window.addEventListener("click", function(evt) {
-  
-  if (!evt.target.className == "btn-menustrip") {
-    // Hide all elements with menuitem-content classes
-    var menuItemContents = document.getElementsByClassName("menuitem-content");
-    for (var i = 0; i < menuItemContents.length; i++) {
-      menuItemContents[i].style.display = "none";
-    }
-  }
-  else {
 
+  console.log(evt.target);
+  
+  if (evt.target.className == "btn-menuitem" || evt.target.className == "fake-checkbox") {
+    // If the user clicked a menuitem, stop displaying other menuitem dropdowns
     var siblings = evt.target.parentNode.childNodes;
     for (var i = 0; i < siblings.length; i++) {
       var sibling = siblings[i];
@@ -132,13 +127,19 @@ window.addEventListener("click", function(evt) {
         for (var j = 0; j < menuItemContents.length; j++) {
           if (!menuItemContents[j].isEqualNode(sibling)) {
             menuItemContents[j].style.display = "none";
-            console.log("set menuitemcontent to none");
           }
         }
 
       }
     }
-
+  }
+  else {
+    // Hide all elements with menuitem-content classes
+    var menuItemContents = document.getElementsByClassName("menuitem-content");
+    for (var i = 0; i < menuItemContents.length; i++) {
+      console.log(i);
+      menuItemContents[i].style.display = "none";
+    }
   }
 
 });
