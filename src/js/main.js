@@ -91,6 +91,29 @@ class InAppWindow {
   }
 }
 
+class AboutWindow extends InAppWindow {
+  constructor() {
+    super({
+      id: "window-help-about",
+      titleCaption: "About",
+      width: 400,
+      height: 140
+    });
+
+    // Create a heading to display 'Physics Shaper'
+    var heading = document.createElement("h1");
+    heading.innerHTML = "Physics Shaper";
+    heading.setAttribute("class", "heading-l");
+    heading.style.textAlign = "center";
+    this.addToWindowContent(heading);
+
+    var version = document.createElement("p");
+    version.innerHTML = "Version: v1.0";
+    version.style.textAlign = "center";
+    this.addToWindowContent(version);
+  }
+}
+
 function randInt(min, max) {
   min = Math.ceil(min);
   max = Math.floor(max);
@@ -217,25 +240,7 @@ for (var i = 0; i < btnMenuItems.length; i++) {
 
 var btnHelpAbout = document.getElementById("btn-help-about");
 btnHelpAbout.addEventListener("click", function() {
-  var help = new InAppWindow({
-    id: "window-help-about",
-    titleCaption: "About",
-    width: 400,
-    height: 140
-  });
-
-  // Create a heading to display 'Physics Shaper'
-  var heading = document.createElement("h1");
-  heading.innerHTML = "Physics Shaper";
-  heading.setAttribute("class", "heading-l");
-  heading.style.textAlign = "center";
-  help.addToWindowContent(heading);
-
-  var version = document.createElement("p");
-  version.innerHTML = "Version: v1.0";
-  version.style.textAlign = "center";
-  help.addToWindowContent(version);
-
+  var help = new AboutWindow();
   inAppWindowManager.add(help);
 });
 
