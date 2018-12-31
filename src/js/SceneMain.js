@@ -413,13 +413,15 @@ class SceneMain extends Phaser.Scene {
       this.lastPointerY = this.cameras.main.y + this.input.activePointer.y;
     }
 
-    if (this.input.activePointer.isDown) {
+    if (windowDragged == null) {
+      if (this.input.activePointer.isDown) {
 
-      var amountX = this.input.activePointer.x - this.lastPointerX;
-      var amountY = this.input.activePointer.y - this.lastPointerY;
-    
-      if (Phaser.Math.Distance.Between(this.input.activePointer.x, this.input.activePointer.y, this.lastPointerX, this.lastPointerY) > 32) {
-        this.cameras.main.centerOn(amountX, amountY);
+        var amountX = this.input.activePointer.x - this.lastPointerX;
+        var amountY = this.input.activePointer.y - this.lastPointerY;
+      
+        if (Phaser.Math.Distance.Between(this.input.activePointer.x, this.input.activePointer.y, this.lastPointerX, this.lastPointerY) > 32) {
+          this.cameras.main.centerOn(amountX, amountY);
+        }
       }
     }
 

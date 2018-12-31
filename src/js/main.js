@@ -1,3 +1,102 @@
+class InAppWindowManager {
+  constructor() {
+    this.amountInAppWindows = 0;
+
+    this.inAppWindows = [];
+  }
+
+  add(win) {
+    win.window.style.zIndex = 2 + this.amountInAppWindows;
+    this.inAppWindows.push(win);
+    this.amountInAppWindows++;
+  }
+
+  remove(win) {
+    for (var i = 0; i < this.inAppWindows.length; i++) {
+      if (this.inAppWindows[i].id == win.id) {
+        this.inAppWindows = this.inAppWindows.splice(i, 1);
+      }
+    }
+
+    this.amountInAppWindows--;
+  }
+}
+
+class InAppWindow {
+  constructor(properties) {
+    this.id = properties.id;
+    this.titleCaption = properties.titleCaption;
+
+    var windowWidth = properties.width;
+    var windowHeight = properties.height;
+    var safePadding = properties.safePadding !== undefined ? properties.safePadding : 128;
+
+    // Create the 'Window' itself
+    this.window = document.createElement("div");
+    this.window.inAppWindowInstance = this;
+    this.window.setAttribute("class", "in-app-window");
+    this.window.setAttribute("id", this.id);
+    this.window.style.position = "fixed";
+
+    this.window.style.top = randInt(safePadding, window.innerHeight - windowHeight - safePadding) + "px";
+    this.window.style.left = randInt(safePadding, window.innerWidth - windowWidth - safePadding) + "px";
+    this.window.style.width = windowWidth + "px";
+    this.window.style.height = windowHeight + "px";
+
+    this.window.displayWidth = windowWidth;
+    this.window.displayHeight = windowHeight;
+
+    // Create the titlebar
+    this.titleBar = document.createElement("div");
+    this.titleBar.setAttribute("class", "in-app-window-titlebar");
+    this.titleBar.style.borderRight = "2px solid #333";
+    this.titleBar.style.borderLeft = "2px solid #333";
+    this.window.appendChild(this.titleBar);
+
+    // Create the title
+    this.title = document.createElement("p");
+    this.title.innerHTML = this.titleCaption;
+    this.title.setAttribute("class", "in-app-window-title");
+    this.title.style.position = "relative";
+    this.title.style.top = "25%";
+    this.title.style.color = "white";
+    this.titleBar.appendChild(this.title);
+
+    // Create close button
+    this.btnClose = document.createElement("a");
+    this.btnClose.innerHTML = "✕";
+    this.btnClose.setAttribute("class", "btn-in-app-window-close");
+    this.titleBar.appendChild(this.btnClose);
+
+    // Create the content wrapper
+    this.windowContentWrapper = document.createElement("div");
+    this.windowContentWrapper.setAttribute("class", "in-app-window-content-wrapper");
+    this.windowContentWrapper.style.position = "relative";
+    this.windowContentWrapper.style.width = "100%";
+    this.windowContentWrapper.style.height = "100%";
+    this.windowContentWrapper.style.padding = "32px;"
+    this.windowContentWrapper.style.borderRight = "2px solid #222";
+    this.windowContentWrapper.style.borderBottom = "2px solid #222";
+    this.windowContentWrapper.style.borderLeft = "2px solid #222";
+    this.window.appendChild(this.windowContentWrapper);
+
+
+    var body = document.getElementsByTagName("body")[0];
+    
+    body.appendChild(this.window);
+  }
+
+  addToWindowContent(element) {
+    this.windowContentWrapper.append(element);
+  }
+}
+
+function randInt(min, max) {
+  min = Math.ceil(min);
+  max = Math.floor(max);
+  return Math.floor(Math.random() * (max - min + 1)) + min;
+}
+
 
 var config = {
   type: Phaser.AUTO,
@@ -11,6 +110,11 @@ var config = {
 };
 
 var app = new Phaser.Game(config);
+
+var inAppWindowManager = new InAppWindowManager();
+
+var isMouseDown = false;
+var windowDragged = null;
 
 function showLoadImageDialog() {
   document.getElementById("input-load-image").click();
@@ -111,6 +215,30 @@ for (var i = 0; i < btnMenuItems.length; i++) {
   });
 }
 
+var btnHelpAbout = document.getElementById("btn-help-about");
+btnHelpAbout.addEventListener("click", function() {
+  var help = new InAppWindow({
+    id: "window-help-about",
+    titleCaption: "About",
+    width: 400,
+    height: 140
+  });
+
+  // Create a heading to display 'Physics Shaper'
+  var heading = document.createElement("h1");
+  heading.innerHTML = "Physics Shaper";
+  heading.setAttribute("class", "heading-l");
+  heading.style.textAlign = "center";
+  help.addToWindowContent(heading);
+
+  var version = document.createElement("p");
+  version.innerHTML = "Version: v1.0";
+  version.style.textAlign = "center";
+  help.addToWindowContent(version);
+
+  inAppWindowManager.add(help);
+});
+
 window.addEventListener("click", function(evt) {
 
   console.log(evt.target);
@@ -140,6 +268,51 @@ window.addEventListener("click", function(evt) {
       console.log(i);
       menuItemContents[i].style.display = "none";
     }
+
+    if (evt.target.className == "btn-in-app-window-close") {
+      var win = evt.target.parentNode.parentNode;
+
+      inAppWindowManager.remove(win.inAppWindowInstance);
+
+      console.log(win);
+
+      document.getElementsByTagName("body")[0].removeChild(win);
+    }
+  }
+
+});
+
+window.addEventListener("mousedown", function(evt) {
+  isMouseDown = true;
+
+  if (evt.target.className == "in-app-window-titlebar") {
+    var win = evt.target.parentNode;
+
+    windowDragged = win;
+  }
+  else if (evt.target.className == "in-app-window-title") {
+    var win = evt.target.parentNode.parentNode;
+
+    windowDragged = win;
+  }
+});
+
+window.addEventListener("mouseup", function() {
+  isMouseDown = false;
+
+  windowDragged = null;
+});
+
+window.addEventListener("mousemove", function(evt) {
+  
+  if (isMouseDown) {
+    console.log("mouse down " + evt.x + "," + evt.y);
+      
+    if (windowDragged !== null) {
+      windowDragged.style.top = (evt.y - (16)) + "px";
+      windowDragged.style.left = (evt.x - (windowDragged.displayWidth * 0.5)) + "px";
+    }
+
   }
 
 });
