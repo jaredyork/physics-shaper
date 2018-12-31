@@ -15,7 +15,7 @@
 
   </head>
 
-  <body>
+  <body oncontextmenu="return false;">
     <input type="file" style="display: none;" accept="image/*" id="input-load-image" />
     <div class="menustrip">
       <div class="menuitem">
@@ -54,8 +54,17 @@
       <script src="js/main.js"></script>
     </div>
 
+    
     <div class="overlay-export">
       <textarea id="export-json"></textarea>
+    </div>
+
+    <div>
+      <input type="checkbox" class="sidebar-checkbox" id="sidebar-checkbox-left">
+      <div id="main-container-left">
+
+      </div>
+      <label class="sidebar-toggle-left" for="sidebar-checkbox-left"></label>
     </div>
   </body>
 </html>

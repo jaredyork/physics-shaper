@@ -1,5 +1,6 @@
 body {
-  background: #888;
+  background-image: url(../img/sprBgTransparency.png);
+
   font-family: Helvetica, arial, sans-serif;
 
   -webkit-touch-callout: none; /* iOS Safari */
@@ -63,4 +64,36 @@ body {
 
 #input-load-image {
   display: none;
+}
+
+.sidebar-checkbox {
+  display: none;
+}
+
+.sidebar {
+  background-color: red;
+  left: 30rem;
+  top: 100px;
+  position: fixed;
+  width: 15rem;
+}
+
+.sidebar-toggle {
+  position: fixed;
+  display: block;
+  top: 80px;
+  left: 80px;
+  z-index: 1;
+  transition: transform 0.3s ease-in-out 0s;
+  cursor: pointer;
+}
+
+#sidebar-checkbox-left:checked + .sidebar {
+  visibility: visible;
+}
+
+#sidebar-checkbox-left:checked ~ .sidebar {
+  -ms-transform: translateX(30rem);
+  -webkit-transform: translateX(30rem);
+  transform: translateX(30rem);
 }

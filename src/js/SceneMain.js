@@ -44,6 +44,7 @@ class Editor {
 
     this.imageRepresentation = null;
     this.polygonOverlay = null;
+    this.lineOverlays = this.scene.add.group();
 
     this.pointIcons = this.scene.add.group();
     this.points = [];
@@ -69,36 +70,46 @@ class Editor {
           );
     
           if (dist < 4) {
-            hasConnectedAsShape = true;
+            if (pointer.rightButtonDown()) {
+              if (icon) {
+                icon.destroy();
+              }
+            }
+            else {
+              hasConnectedAsShape = true;
+            }
           }
         }
 
-        if (!hasConnectedAsShape) {
-          var icon = this.scene.add.sprite(wx, wy, "sprIconPoint");
-          icon.setDepth(10);
-    
-          this.pointIcons.add(icon);
-    
-          this.points.push(new Point(wx, wy));
+        if (!pointer.rightButtonDown()) {
+          if (!hasConnectedAsShape) {
+            var icon = this.scene.add.sprite(wx, wy, "sprIconPoint");
+            icon.setDepth(10);
+            icon.setTint(0x33CCFF);
+      
+            this.pointIcons.add(icon);
+      
+            this.points.push(new Point(wx, wy));
 
-          this.polygonCreated = false;
-        }
-        else {
-
-          // Copy points from 'points' to 'polygonPoints'
-          for (var i = 0; i < this.points.length; i++) {
-            this.polygonPoints.push(this.points[i]);
+            this.polygonCreated = false;
           }
-          this.points.length = 0;
-          
-          this.polygonOverlay = this.scene.add.graphics();
+          else {
 
-          var poly = new Phaser.Geom.Polygon(this.convertPointsToPolygonArray(this.polygonPoints));
-          this.polygonOverlay.fillStyle(0x000000);
-          this.polygonOverlay.fillPoints(poly.points, true);
+            // Copy points from 'points' to 'polygonPoints'
+            for (var i = 0; i < this.points.length; i++) {
+              this.polygonPoints.push(this.points[i]);
+            }
+            this.points.length = 0;
+            
+            this.polygonOverlay = this.scene.add.graphics();
 
-          this.polygonCreated = true;
+            var poly = new Phaser.Geom.Polygon(this.convertPointsToPolygonArray(this.polygonPoints));
+            this.polygonOverlay.fillStyle(0x000000);
+            this.polygonOverlay.fillPoints(poly.points, true);
 
+            this.polygonCreated = true;
+
+          }
         }
       }
 
@@ -224,14 +235,16 @@ class Editor {
 
     console.log("w: " + Math.ceil(this.scene.game.config.width / temp.width));
 
+    /*
     for (var i = -Math.ceil(3840 / temp.width); i < Math.ceil(3840 / temp.width); i++) {
       for (var j = -Math.ceil(2160 / temp.height); j < Math.ceil(2160 / temp.height); j++) {
-        var bg = this.scene.add.image((i * temp.width), (j * temp.height), "sprBgTransparency").setScrollFactor(0);
+        var bg = this.scene.add.image((i * temp.width), (j * temp.height), "sprBgTransparency");
         bg.setOrigin(0, 0);
+        bg.setScale(1 / this.scene.cameras.main.zoom);
 
         this.transparencyBackgrounds.add(bg);
       }
-    }
+    }*/
 
   }
 
@@ -333,11 +346,19 @@ class Editor {
       );
 
       if (dist < 4) {
-        icon.setScale((1 / this.scene.cameras.main.zoom) * 2);
+        icon.setScale((1 / this.scene.cameras.main.zoom) * 1.25);
+        icon.setTint(0xFF3333);
       }
       else {
         icon.setScale(1 / this.scene.cameras.main.zoom);
+        icon.setTint(0x33CCFF);
       }
+    }
+
+    for (var i = 0; i < this.transparencyBackgrounds.getChildren().length; i++) {
+      var bg = this.transparencyBackgrounds.getChildren()[i];
+
+      bg.setScale(1 / this.scene.cameras.main.zoom);
     }
 
   }
@@ -375,6 +396,7 @@ class SceneMain extends Phaser.Scene {
 
     this.cursor = this.add.sprite(this.input.activePointer.x, this.input.activePointer.y, "sprIconPoint");
     this.cursor.setDepth(10);
+    this.cursor.setTint(0x33CCFF);
 
     this.lastPointerDown = false;
     this.lastPointerX = 0;
