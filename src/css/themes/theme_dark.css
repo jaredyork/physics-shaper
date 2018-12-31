@@ -1,0 +1,25 @@
+.menustrip {
+  background: #333333;
+}
+
+.btn-menuitem {
+  color: #89898A;
+}
+
+.btn-menuitem:hover {
+  color: #CCCCCC;
+  background: #474748;
+}
+
+.menuitem-content {
+  background: #252526;
+}
+
+.menuitem-content a {
+  color: #CCCCCC;
+}
+
+.menuitem-content a:hover {
+  color: white;
+  background: #094771;
+}
