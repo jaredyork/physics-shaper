@@ -88,28 +88,60 @@ for (var i = 0; i < btnMenuItems.length; i++) {
 
   btn.addEventListener("click", function() {
 
-    // Hide all elements with menuitem-content classes
-    var menuItemContents = document.getElementsByClassName("menuitem-content");
-    for (var j = 0; j < menuItemContents.length; j++) {
-      menuItemContents[j].style.display = "none";
-    }
-
     // Show the menuitem-content which is a sibling of btn-menuitem
     var siblings = this.parentNode.childNodes;
     for (var j = 0; j < siblings.length; j++) {
       var sibling = siblings[j];
       if (sibling.className == "menuitem-content") {
-        sibling.style.position = "absolute";
-        sibling.style.display = "flex";
-        sibling.style.flexDirection = "column";
-        sibling.style.top = "32px";
-        sibling.style.border = "1px solid #333";
-        console.log("set menuitem-content display to block");
+
+        if (sibling.style.display == "none") {
+          sibling.style.position = "absolute";
+          sibling.style.display = "flex";
+          sibling.style.flexDirection = "column";
+          sibling.style.top = "32px";
+          sibling.style.border = "1px solid #333";
+          console.log("set menuitem-content display to block");
+        }
+        else if (sibling.style.display == "flex") {
+          sibling.style.display = "none";
+        }
       }
     }
 
   });
 }
+
+window.addEventListener("click", function(evt) {
+  
+  if (!evt.target.className == "btn-menustrip") {
+    // Hide all elements with menuitem-content classes
+    var menuItemContents = document.getElementsByClassName("menuitem-content");
+    for (var i = 0; i < menuItemContents.length; i++) {
+      menuItemContents[i].style.display = "none";
+    }
+  }
+  else {
+
+    var siblings = evt.target.parentNode.childNodes;
+    for (var i = 0; i < siblings.length; i++) {
+      var sibling = siblings[i];
+      if (sibling.className == "menuitem-content") {
+
+        // Hide all elements with menuitem-content classes
+        var menuItemContents = document.getElementsByClassName("menuitem-content");
+        for (var j = 0; j < menuItemContents.length; j++) {
+          if (!menuItemContents[j].isEqualNode(sibling)) {
+            menuItemContents[j].style.display = "none";
+            console.log("set menuitemcontent to none");
+          }
+        }
+
+      }
+    }
+
+  }
+
+});
 
 function onWheelScroll(e) {
 
