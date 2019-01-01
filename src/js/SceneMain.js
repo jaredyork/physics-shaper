@@ -114,22 +114,45 @@ class Editor {
               );
               graphics.strokeLineShape(line);
               this.lineOverlays.add(graphics);
-            }            
+            }
+
+            if (this.polygonOverlay) {
+              this.polygonOverlay.destroy();
+            }
+
+            var poly = new Phaser.Geom.Polygon(this.convertPointsToPolygonArray(this.points));
+            this.polygonOverlay.fillStyle(0x000000FF);
+            this.polygonOverlay.fillPoints(poly.points, true);
 
             this.polygonCreated = false;
           }
           else {
 
+            /*
             // Copy points from 'points' to 'polygonPoints'
             for (var i = 0; i < this.points.length; i++) {
               this.polygonPoints.push(this.points[i]);
             }
-            this.points.length = 0;
+            this.points.length = 0;*/
+
+            if (this.points.length > 1) {
+              var graphics = this.scene.add.graphics({
+                lineStyle: { width: 1, color: 0x000000 }
+              });
+              var line = new Phaser.Geom.Line(
+                this.points[this.points.length - 2].x,
+                this.points[this.points.length - 2].y,
+                this.points[this.points.length - 1].x,
+                this.points[this.points.length - 1].y
+              );
+              graphics.strokeLineShape(line);
+              this.lineOverlays.add(graphics);
+            }
             
             this.polygonOverlay = this.scene.add.graphics();
             this.polygonOverlay.setAlpha(0.5);
 
-            var poly = new Phaser.Geom.Polygon(this.convertPointsToPolygonArray(this.polygonPoints));
+            var poly = new Phaser.Geom.Polygon(this.convertPointsToPolygonArray(this.points));
             this.polygonOverlay.fillStyle(0x000000FF);
             this.polygonOverlay.fillPoints(poly.points, true);
 
@@ -302,26 +325,31 @@ class Editor {
 
   loadNewImage(key) {
 
+    // Destroy the current image (if there is one)
     if (this.imageRepresentation) {
       this.imageRepresentation.destroy();
 
       console.log("image exists");
     }
 
+    // Clear all points and paths
+    this.clearAllPoints();
+
+    // Create the new image
     this.imageRepresentation = this.scene.add.sprite(0, 0, key);
     this.imageRepresentation.setOrigin(0, 0);
 
+    // Center the camera on the new image
     this.scene.cameras.main.centerOn(this.imageRepresentation.x + (this.imageRepresentation.displayWidth * 0.5), this.imageRepresentation.y + (this.imageRepresentation.displayHeight * 0.5));
   
+    // Set the camera zoom to show all of the image
     var widthFactor = this.imageRepresentation.width / this.imageRepresentation.width;
     var heightFactor = this.imageRepresentation.height / this.imageRepresentation.height;
-
+    
     var sizeFactor = Math.max(widthFactor, heightFactor);
-
-    console.log("SIZE FACTOR: " + sizeFactor);
-
     this.scene.cameras.main.setZoom(sizeFactor);
 
+    // Increment amountLoadedImages
     amountLoadedImages++;
   }
 
