@@ -1,0 +1,115 @@
+.menustrip {
+  background: #f0f3f4;
+}
+
+.btn-menuitem {
+  color: #89898A;
+}
+
+.btn-menuitem:hover {
+  color: #5e6368;
+  background: #ffffff;
+}
+
+.menuitem-content {
+  background: #f0f3f4;
+}
+
+.menuitem-content a {
+  color: #5e6368;
+}
+
+.menuitem-content a:hover {
+  color: #5e6368;
+  background: #ffffff;
+}
+
+.in-app-window-content-wrapper {
+  background: #ffffff;
+  border-right: 2px solid #999;
+  border-bottom: 2px solid #999;
+  border-left: 2px solid #999;
+}
+
+.in-app-window-content-padding {
+  padding: 32px;
+}
+
+.in-app-window-titlebar {
+  width: 100%;
+  height: 32px;
+  border-left: 2px solid #0D47A1;
+  border-right: 2px solid #0D47A1;
+  background: #2962FF;
+}
+
+.in-app-window-title {
+  color: white;
+  text-align: center;
+}
+
+.btn-in-app-window-close {
+  position: relative;
+  display: inline-block;
+  top: -16px;
+  left: calc(100% - 30px);
+  width: 32px;
+  line-height: 32px;
+  text-align: center;
+  text-decoration: none;
+  font-size: 24px;
+  color: #909090;
+}
+
+.btn-in-app-window-close:hover {
+  color: white;
+  background: #d61424;
+}
+
+.input-form {
+  padding-top: 8px;
+  padding-bottom: 8px;
+}
+
+.input-form label {
+  color: #555;
+}
+
+.input-form-checkbox {
+  color: #555;
+}
+
+.txtfield {
+  width: 100%;
+  color: #555;
+  background: #ffffff;
+  padding: 8px 4px 8px 4px;
+  border: 1px solid #a1a1a1;
+}
+
+.txtfield:active {
+  border: 1px solid #135784;
+}
+
+.heading-l {
+  font-size: 2.5em;
+}
+
+.heading-m {
+  font-size: 1.75em;
+}
+
+.heading-s {
+  font-size: 1.25em;
+}
+
+.heading-l, .heading-m, .heading-s {
+  font-weight: bold;
+  color: #555;
+  padding-top: 0.25em;
+  padding-bottom: 0.5em;
+}
+
+p {
+  color: #929292;
+}

@@ -49,8 +49,6 @@ class InAppWindow {
     // Create the titlebar
     this.titleBar = document.createElement("div");
     this.titleBar.setAttribute("class", "in-app-window-titlebar");
-    this.titleBar.style.borderRight = "2px solid #333";
-    this.titleBar.style.borderLeft = "2px solid #333";
     this.window.appendChild(this.titleBar);
 
     // Create the title
@@ -74,12 +72,11 @@ class InAppWindow {
     this.windowContentWrapper.style.position = "relative";
     this.windowContentWrapper.style.width = "100%";
     this.windowContentWrapper.style.height = "100%";
-    this.windowContentWrapper.style.padding = "32px;"
-    this.windowContentWrapper.style.borderRight = "2px solid #222";
-    this.windowContentWrapper.style.borderBottom = "2px solid #222";
-    this.windowContentWrapper.style.borderLeft = "2px solid #222";
     this.window.appendChild(this.windowContentWrapper);
 
+    this.windowContentPadding = document.createElement("div");
+    this.windowContentPadding.setAttribute("class", "in-app-window-content-padding");
+    this.windowContentWrapper.appendChild(this.windowContentPadding);
 
     var body = document.getElementsByTagName("body")[0];
     
@@ -87,7 +84,61 @@ class InAppWindow {
   }
 
   addToWindowContent(element) {
-    this.windowContentWrapper.append(element);
+    this.windowContentPadding.append(element);
+  }
+}
+
+class ImageEditorWindow extends InAppWindow {
+  constructor() {
+    super({
+      id: "window-view-editor",
+      titleCaption: "Image Editor",
+      width: 320,
+      height: 400
+    });
+
+    var heading = document.createElement("h3");
+    heading.innerHTML = "Image";
+    heading.setAttribute("class", "heading-s");
+    heading.style.textAlign = "center";
+    this.addToWindowContent(heading);
+
+    var tbWidth = createTextbox("Width", "tb_width");
+    this.addToWindowContent(tbWidth);
+    var tbHeight = createTextbox("Height", "tb_height");
+    this.addToWindowContent(tbHeight);
+    var tbAnchorPixelX = createTextbox("Anchor (pixel) X", "tb_anchor_pixel_x");
+    this.addToWindowContent(tbAnchorPixelX);
+    var tbAnchorPixelY = createTextbox("Anchor (pixel) Y", "tb_anchor_pixel_y");
+    this.addToWindowContent(tbAnchorPixelY);
+  }
+}
+
+class FixtureEditorWindow extends InAppWindow {
+  constructor() {
+    super({
+      id: "window-view-editor",
+      titleCaption: "Fixture Editor",
+      width: 320,
+      height: 400
+    });
+
+    var heading = document.createElement("h3");
+    heading.innerHTML = "Fixture";
+    heading.setAttribute("class", "heading-s");
+    heading.style.textAlign = "center";
+    this.addToWindowContent(heading);
+
+    var tbDensity = createTextbox("Density", "tb_density");
+    this.addToWindowContent(tbDensity);
+    var tbFriction = createTextbox("Friction", "tb_friction");
+    this.addToWindowContent(tbFriction);
+    var tbRestitution = createTextbox("Restitution", "tb_restitution");
+    this.addToWindowContent(tbRestitution);
+    var cbIsSensor = createCheckbox("Is Sensor", "cb_is_sensor");
+    this.addToWindowContent(cbIsSensor);
+    var tbGroup = createTextbox("Group", "tb_group");
+    this.addToWindowContent(tbGroup);
   }
 }
 
@@ -120,6 +171,38 @@ function randInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
 
+function createTextbox(labelName, id) {
+  var p = document.createElement("p");
+  p.setAttribute("class", "input-form");
+
+  var label = document.createElement("label");
+  label.innerHTML = labelName;
+  p.appendChild(label);
+
+  var tb = document.createElement("input");
+  tb.setAttribute("class", "txtfield");
+  tb.setAttribute("id", id);
+  tb.setAttribute("type", "text");
+  p.appendChild(tb);
+
+  return p;
+}
+
+function createCheckbox(labelName, id) {
+  var p = document.createElement("p");
+
+  var label = document.createElement("label");
+  label.setAttribute("class", "input-form-checkbox");
+  label.innerHTML = labelName;
+  p.appendChild(label);
+
+  var cb = document.createElement("input");
+  cb.setAttribute("id", id);
+  cb.setAttribute("type", "checkbox");
+  p.appendChild(cb);
+
+  return p;
+}
 
 var config = {
   type: Phaser.AUTO,
@@ -238,6 +321,18 @@ for (var i = 0; i < btnMenuItems.length; i++) {
   });
 }
 
+var btnViewImageEditor = document.getElementById("btn-view-image-editor");
+btnViewImageEditor.addEventListener("click", function() {
+  var editor = new ImageEditorWindow();
+  inAppWindowManager.add(editor);
+});
+
+var btnViewFixtureEditor = document.getElementById("btn-view-fixture-editor");
+btnViewFixtureEditor.addEventListener("click", function() {
+  var editor = new FixtureEditorWindow();
+  inAppWindowManager.add(editor);
+});
+
 var btnHelpAbout = document.getElementById("btn-help-about");
 btnHelpAbout.addEventListener("click", function() {
   var help = new AboutWindow();
@@ -290,7 +385,18 @@ window.addEventListener("click", function(evt) {
 window.addEventListener("mousedown", function(evt) {
   isMouseDown = true;
 
-  if (evt.target.className == "in-app-window-titlebar") {
+  if (evt.target.className == "in-app-window-content-wrapper") {
+    var win = evt.target.parentNode;
+
+    for (var i = 0; i < inAppWindowManager.inAppWindows.length; i++) {
+      var w = inAppWindowManager.inAppWindows[i];
+
+      w.window.style.zIndex = i;
+    }
+
+    win.style.zIndex = 100;
+  }
+  else if (evt.target.className == "in-app-window-titlebar") {
     var win = evt.target.parentNode;
 
     windowDragged = win;

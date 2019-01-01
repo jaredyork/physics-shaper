@@ -45,11 +45,22 @@ class Editor {
     this.imageRepresentation = null;
     this.polygonOverlay = null;
     this.lineOverlays = this.scene.add.group();
+    this.currentLineOverlay = this.scene.add.graphics({
+      lineStyle: {
+        width: 1,
+        color: 0x000000
+      }
+    });
 
     this.pointIcons = this.scene.add.group();
     this.points = [];
     this.polygonPoints = [];
     this.polygonCreated = false;
+
+    this.pixelCursor = this.scene.add.graphics({
+      lineStyle: { width: 0.1, color: 0x000000 }
+    });
+    this.pixelCursor.setDepth(9);
 
     this.scene.input.on("pointerdown", function(pointer) {
 
@@ -91,6 +102,20 @@ class Editor {
       
             this.points.push(new Point(wx, wy));
 
+            if (this.points.length > 1) {
+              var graphics = this.scene.add.graphics({
+                lineStyle: { width: 1, color: 0x000000 }
+              });
+              var line = new Phaser.Geom.Line(
+                this.points[this.points.length - 2].x,
+                this.points[this.points.length - 2].y,
+                this.points[this.points.length - 1].x,
+                this.points[this.points.length - 1].y
+              );
+              graphics.strokeLineShape(line);
+              this.lineOverlays.add(graphics);
+            }            
+
             this.polygonCreated = false;
           }
           else {
@@ -102,14 +127,18 @@ class Editor {
             this.points.length = 0;
             
             this.polygonOverlay = this.scene.add.graphics();
+            this.polygonOverlay.setAlpha(0.5);
 
             var poly = new Phaser.Geom.Polygon(this.convertPointsToPolygonArray(this.polygonPoints));
-            this.polygonOverlay.fillStyle(0x000000);
+            this.polygonOverlay.fillStyle(0x000000FF);
             this.polygonOverlay.fillPoints(poly.points, true);
 
             this.polygonCreated = true;
 
           }
+        }
+        else {
+
         }
       }
 
@@ -196,6 +225,7 @@ class Editor {
 
 
         console.log("VERTICES");
+      
         console.log(vertices);
         console.log("");
 
@@ -245,6 +275,28 @@ class Editor {
         this.transparencyBackgrounds.add(bg);
       }
     }*/
+
+  }
+
+  drawPointLineConnections() {
+
+    this.lineOverlays.clear(true, true);
+
+    if (this.points.length > 1) {
+      for (var i = 0; i < this.points.length; i++) {
+        var graphics = this.scene.add.graphics({
+          lineStyle: { width: 1, color: 0x000000 }
+        });
+        var line = new Phaser.Geom.Line(
+          this.points[i - 1].x,
+          this.points[i - 1].y,
+          this.points[i].x,
+          this.points[i].y
+        );
+        graphics.strokeLineShape(line);
+        this.lineOverlays.add(graphics);
+      }
+    }
 
   }
 
@@ -317,6 +369,7 @@ class Editor {
     }
     
     this.pointIcons.clear(true, true);
+    this.lineOverlays.clear(true, true);
 
     this.polygonCreated = false;
   }
@@ -360,7 +413,36 @@ class Editor {
 
       bg.setScale(1 / this.scene.cameras.main.zoom);
     }
+    
+    if (this.points.length > 0) {
 
+      if (this.currentLineOverlay) {
+        this.currentLineOverlay.destroy();
+      }
+
+      this.currentLineOverlay = this.scene.add.graphics({
+        lineStyle: { width: 1, color: 0x000000, cap: "round" }
+      });
+      var line = new Phaser.Geom.Line(
+        this.points[this.points.length - 1].x,
+        this.points[this.points.length - 1].y,
+        this.scene.input.activePointer.worldX,
+        this.scene.input.activePointer.worldY
+      );
+
+      this.currentLineOverlay.strokeLineShape(line);
+    }
+
+    var cursorGeom = new Phaser.Geom.Rectangle(
+      Math.floor(this.scene.input.activePointer.worldX) - 0,
+      Math.floor(this.scene.input.activePointer.worldY) - 0,
+      1,
+      1
+    );
+    this.pixelCursor.clear();
+    this.pixelCursor.strokeRectShape(cursorGeom);
+
+    this.pixelCursor.lineStyle.width = 1 / this.scene.cameras.main.zoom;
   }
 }
 
