@@ -253,13 +253,8 @@ function handleFileSelect(evt) {
 }
 
 window.addEventListener("resize", function() {
-  var canvas = document.getElementsByTagName("canvas")[0];
-
-  canvas.setAttribute("id", "app-canvas");
-
-  canvas.style.width = window.innerWidth;
-  canvas.style.height = window.innerHeight - 32;
-
+  app.resize(window.innerWidth, window.innerHeight - 32);
+  app.scene.scenes[0].cameras.resize(window.innerWidth, window.innerHeight - 32);
 
   console.log("resized");
 });

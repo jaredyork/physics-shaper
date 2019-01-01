@@ -421,7 +421,7 @@ class Editor {
       }
 
       this.currentLineOverlay = this.scene.add.graphics({
-        lineStyle: { width: 1, color: 0x000000, cap: "round" }
+        lineStyle: { width: 1, color: 0x000000 }
       });
       var line = new Phaser.Geom.Line(
         this.points[this.points.length - 1].x,
