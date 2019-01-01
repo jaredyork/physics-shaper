@@ -30,9 +30,6 @@ class PhaserThreeExportTemplate {
         vertices: properties.vertices
       }]
     };
-
-    console.log(this);
-
   }
 }
 
@@ -67,7 +64,6 @@ class Editor {
       if (!this.polygonCreated) {
         var wx = pointer.worldX;
         var wy = pointer.worldY;
-        console.log(pointer);
 
         var hasConnectedAsShape = false;
         for (var i = 0; i < this.pointIcons.getChildren().length; i++) {
@@ -181,6 +177,8 @@ class Editor {
 
     }, this);
 
+    this.scene.cameras.main.centerOn(0, 0);
+
   }
 
   static getExportFormats() {
@@ -232,12 +230,6 @@ class Editor {
           }
         }
 
-
-        console.log("VERTICES");
-      
-        console.log(vertices);
-        console.log("");
-
         obj = new PhaserThreeExportTemplate({
           name: "banana",
           label: "banana",
@@ -269,8 +261,6 @@ class Editor {
 
     var temp = this.scene.add.image(-512, -512, "sprBgTransparency");
     temp.setVisible(false);
-
-    console.log("w: " + Math.ceil(this.scene.game.config.width / temp.width));
 
     /*
     for (var i = -Math.ceil(3840 / temp.width); i < Math.ceil(3840 / temp.width); i++) {
@@ -312,8 +302,6 @@ class Editor {
     // Destroy the current image (if there is one)
     if (this.imageRepresentation) {
       this.imageRepresentation.destroy();
-
-      console.log("image exists");
     }
 
     // Clear all points and paths
@@ -360,7 +348,6 @@ class Editor {
     if (this.pointIcons.getChildren().length > 0) {
 
       this.pointIcons.getChildren()[this.pointIcons.getChildren().length - 1].destroy();
-      console.log("attempted to destroy last point icon");
     }
 
     // Clear the polygon points
@@ -473,11 +460,7 @@ class SceneMain extends Phaser.Scene {
   create() {
 
     this.textures.on("addtexture", function(key) {
-
-      console.log("added texture: " + key);
-
       this.loadNewImage(key);
-
     }, this);
 
     this.editor = new Editor(this);

@@ -27,8 +27,8 @@ class InAppWindow {
     this.id = properties.id;
     this.titleCaption = properties.titleCaption;
 
-    var windowWidth = properties.width;
-    var windowHeight = properties.height;
+    this.windowWidth = properties.width;
+    this.windowHeight = properties.height;
     var safePadding = properties.safePadding !== undefined ? properties.safePadding : 128;
 
     // Create the 'Window' itself
@@ -38,13 +38,13 @@ class InAppWindow {
     this.window.setAttribute("id", this.id);
     this.window.style.position = "fixed";
 
-    this.window.style.top = randInt(safePadding, window.innerHeight - windowHeight - safePadding) + "px";
-    this.window.style.left = randInt(safePadding, window.innerWidth - windowWidth - safePadding) + "px";
-    this.window.style.width = windowWidth + "px";
-    this.window.style.height = windowHeight + "px";
+    this.window.style.top = randInt(safePadding, window.innerHeight - this.windowHeight - safePadding) + "px";
+    this.window.style.left = randInt(safePadding, window.innerWidth - this.windowWidth - safePadding) + "px";
+    this.window.style.width = this.windowWidth + "px";
+    this.window.style.height = this.windowHeight + "px";
 
-    this.window.displayWidth = windowWidth;
-    this.window.displayHeight = windowHeight;
+    this.window.displayWidth = this.windowWidth;
+    this.window.displayHeight = this.windowHeight;
 
     // Create the titlebar
     this.titleBar = document.createElement("div");
@@ -93,7 +93,7 @@ class FixtureSelectorWindow extends InAppWindow {
     super({
       id: "window-view-fixture-selector",
       titleCaption: "Fixture Selector",
-      width: 320,
+      width: 180,
       height: 600
     });
 
@@ -103,7 +103,17 @@ class FixtureSelectorWindow extends InAppWindow {
     heading.style.textAlign = "center";
     this.addToWindowContent(heading);
 
+    var iframe = document.createElement("iframe");
+    iframe.style.background = "#e9e9e9";
+    iframe.style.display = "block";
+    iframe.style.width = "100%";
+    iframe.style.height = (this.windowHeight - 128) + "px";
+    iframe.style.border = "1px solid #000000";
+    
+    var fixtureSelectorContainer = document.createElement("div");
+    iframe.appendChild(fixtureSelectorContainer);
 
+    this.addToWindowContent(iframe);
   }
 }
 
@@ -296,10 +306,9 @@ function handleFileSelect(evt) {
   var file = evt.target.files[0];
 
   if (file !== undefined) {
-    console.log("handleFileSelect called");
 
     if (!file.type.match('image.*')) {
-      console.log("File uploaded is not an image!  Aborted.");
+      console.warn("File uploaded is not an image!  Aborted loading.");
     }
 
     var reader = new FileReader();
@@ -308,7 +317,6 @@ function handleFileSelect(evt) {
       return function(e) {
         var image = e.target.result;
         
-        console.log("Loaded " + theFile.name);
         app.scene.scenes[0].textures.addBase64("loadedImage" + amountLoadedImages, image);
 
       }
@@ -321,8 +329,6 @@ function handleFileSelect(evt) {
 window.addEventListener("resize", function() {
   app.resize(window.innerWidth, window.innerHeight - 32);
   app.scene.scenes[0].cameras.resize(window.innerWidth, window.innerHeight - 32);
-
-  console.log("resized");
 });
 
 var btnNew = document.getElementById("btn-new");
@@ -371,7 +377,6 @@ for (var i = 0; i < btnMenuItems.length; i++) {
           sibling.style.flexDirection = "column";
           sibling.style.top = "32px";
           sibling.style.border = "1px solid #333";
-          console.log("set menuitem-content display to block");
         }
         else if (sibling.style.display == "flex") {
           sibling.style.display = "none";
@@ -382,7 +387,7 @@ for (var i = 0; i < btnMenuItems.length; i++) {
   });
 }
 
-var btnViewFixtureSelector = document.createElement("btn-view-fixture-selector");
+var btnViewFixtureSelector = document.getElementById("btn-view-fixture-selector");
 btnViewFixtureSelector.addEventListener("click", function() {
   var selector = new FixtureSelectorWindow();
   inAppWindowManager.add(selector);
@@ -407,8 +412,6 @@ btnHelpAbout.addEventListener("click", function() {
 });
 
 window.addEventListener("click", function(evt) {
-
-  console.log(evt.target);
   
   if (evt.target.className == "btn-menuitem" || evt.target.className == "fake-checkbox") {
     // If the user clicked a menuitem, stop displaying other menuitem dropdowns
@@ -432,7 +435,6 @@ window.addEventListener("click", function(evt) {
     // Hide all elements with menuitem-content classes
     var menuItemContents = document.getElementsByClassName("menuitem-content");
     for (var i = 0; i < menuItemContents.length; i++) {
-      console.log(i);
       menuItemContents[i].style.display = "none";
     }
 
@@ -440,8 +442,6 @@ window.addEventListener("click", function(evt) {
       var win = evt.target.parentNode.parentNode;
 
       inAppWindowManager.remove(win.inAppWindowInstance);
-
-      console.log(win);
 
       document.getElementsByTagName("body")[0].removeChild(win);
     }
@@ -483,9 +483,7 @@ window.addEventListener("mouseup", function() {
 
 window.addEventListener("mousemove", function(evt) {
   
-  if (isMouseDown) {
-    console.log("mouse down " + evt.x + "," + evt.y);
-      
+  if (isMouseDown) {      
     if (windowDragged !== null) {
       windowDragged.style.top = (evt.y - (16)) + "px";
       windowDragged.style.left = (evt.x - (windowDragged.displayWidth * 0.5)) + "px";
