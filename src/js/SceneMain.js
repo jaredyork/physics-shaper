@@ -123,8 +123,11 @@ class Editor {
               this.polygonOverlay.destroy();
             }
 
+            this.polygonOverlay = this.scene.add.graphics();
+            this.polygonOverlay.setAlpha(0.5);
+
             var poly = new Phaser.Geom.Polygon(this.convertPointsToPolygonArray(this.points));
-            this.polygonOverlay.fillStyle(0x000000FF);
+            this.polygonOverlay.fillStyle(0x0000FF);
             this.polygonOverlay.fillPoints(poly.points, true);
 
             this.polygonCreated = false;
@@ -154,6 +157,10 @@ class Editor {
               );
               graphics.strokeLineShape(line);
               this.lineOverlays.add(graphics);
+            }
+
+            if (this.polygonOverlay) {
+              this.polygonOverlay.destroy();
             }
             
             this.polygonOverlay = this.scene.add.graphics();
@@ -459,7 +466,6 @@ class SceneMain extends Phaser.Scene {
   preload() {
     let base = "img/";
 
-    this.load.image("sprBgTransparency", base + "sprBgTransparency.png");
     this.load.image("sprIconPoint", base + "sprIconPoint.png");
     this.load.image("sprOrigin", base + "sprOrigin.png");
   }

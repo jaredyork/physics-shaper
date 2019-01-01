@@ -13,7 +13,7 @@
     <!-- Load JavaScript -->
     <script src="js/lib/phaser.js"></script>
 
-    <link rel="stylesheet" type="text/css" href="css/themes/theme_dark.css">
+    <link id="theme-file" rel="stylesheet" type="text/css" href="css/themes/theme_dark/styles.css">
 
   </head>
 
@@ -49,6 +49,12 @@
           <a href="#" id="btn-view-fixture-editor">View editor</a>
           <a href="#">Toggle pixel grid</a>
         </div>
+      </div>
+
+      <div class="menuitem">
+        <input id="btn-menustrip-themes" type="checkbox" class="fake-checkbox">
+        <label for="btn-menustrip-themes" class="btn-menuitem">Themes</label>
+        <div class="menuitem-content" id="theme-list"></div>
       </div>
 
       <div class="menuitem">

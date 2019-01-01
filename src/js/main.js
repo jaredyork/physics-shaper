@@ -126,10 +126,10 @@ class ImageEditorWindow extends InAppWindow {
     this.addToWindowContent(tbWidth);
     var tbHeight = createTextbox("Height", "tb_height");
     this.addToWindowContent(tbHeight);
-    var tbAnchorPixelX = createTextbox("Anchor (pixel) X", "tb_anchor_pixel_x");
-    this.addToWindowContent(tbAnchorPixelX);
-    var tbAnchorPixelY = createTextbox("Anchor (pixel) Y", "tb_anchor_pixel_y");
-    this.addToWindowContent(tbAnchorPixelY);
+    var tbOriginPixelX = createTextbox("Origin (pixel) X", "tb_origin_pixel_x");
+    this.addToWindowContent(tbOriginPixelX);
+    var tbOriginPixelY = createTextbox("Origin (pixel) Y", "tb_origin_pixel_y");
+    this.addToWindowContent(tbOriginPixelY);
   }
 }
 
@@ -240,6 +240,53 @@ var inAppWindowManager = new InAppWindowManager();
 
 var isMouseDown = false;
 var windowDragged = null;
+
+function setTheme(folderName) {
+
+  // Remove the existing linked theme first
+  document.getElementById("theme-file").remove();
+
+  // Add the theme link
+  var link = document.createElement("link");
+  link.setAttribute("id", "theme-file");
+  link.setAttribute("rel", "stylesheet");
+  link.setAttribute("type", "text/css");
+  link.setAttribute("href", "css/themes/theme_" + folderName + "/styles.css");
+  document.getElementsByTagName("head")[0].appendChild(link);
+
+  // Save the folder name to localStorage
+  window.localStorage.setItem("theme", folderName);
+
+}
+
+function addThemeButton(name, folderName) {
+
+  var a = document.createElement("a");
+  a.innerHTML = name;
+  a.href = "#";
+  a.addEventListener("click", function() {
+    setTheme(folderName);
+  });
+
+  return a;
+}
+
+function loadThemes() {
+  
+  var themeList = document.getElementById("theme-list");
+
+  themeList.appendChild(addThemeButton("Light", "light"));
+  themeList.appendChild(addThemeButton("Dark", "dark"));
+
+  // Load existing theme stored in localStorage, if one exists
+  if (window.localStorage.getItem("theme") !== undefined) {
+    setTheme(window.localStorage.getItem("theme"));
+  }
+}
+
+window.addEventListener("DOMContentLoaded", function() {
+  loadThemes();
+});
 
 function showLoadImageDialog() {
   document.getElementById("input-load-image").click();
