@@ -115,6 +115,9 @@ class Editor {
               graphics.strokeLineShape(line);
               this.lineOverlays.add(graphics);
             }
+            else {
+              this.polygonStarted = true;
+            }
 
             if (this.polygonOverlay) {
               this.polygonOverlay.destroy();
@@ -135,15 +138,19 @@ class Editor {
             }
             this.points.length = 0;*/
 
+            if (this.currentLineOverlay) {
+              this.currentLineOverlay.destroy();
+            }
+
             if (this.points.length > 1) {
               var graphics = this.scene.add.graphics({
                 lineStyle: { width: 1, color: 0x000000 }
               });
               var line = new Phaser.Geom.Line(
-                this.points[this.points.length - 2].x,
-                this.points[this.points.length - 2].y,
                 this.points[this.points.length - 1].x,
-                this.points[this.points.length - 1].y
+                this.points[this.points.length - 1].y,
+                this.points[0].x,
+                this.points[0].y
               );
               graphics.strokeLineShape(line);
               this.lineOverlays.add(graphics);
@@ -157,7 +164,7 @@ class Editor {
             this.polygonOverlay.fillPoints(poly.points, true);
 
             this.polygonCreated = true;
-
+            this.polygonStarted = false;
           }
         }
         else {
@@ -191,47 +198,19 @@ class Editor {
     switch (format) {
       case Editor.getExportFormats().PHASER_3: {
 
-        /*
-            this[properties.name] = {
-      type: "fromPhysicsShaper",
-      label: properties.name,
-      isStatic: properties.isStatic,
-      density: properties.density,
-      restitution: properties.restitution,
-      friction: properties.friction,
-      frictionAir: properties.frictionAir,
-      frictionStatic: properties.frictionStatic,
-      collisionFilter: {
-        group: properties.collisionFilterGroup,
-        category: properties.collisionFilterCategory,
-        mask: properties.collisionFilterMask
-      },
-      fixtures: [{
-        label: properties.name + "-fixture",
-        isSensor: properties.isSensor,
-        vertices: properties.vertices
-      }]
-    };
-    */
-
         // Generate vertices as an object
         var vertices = [];
 
-
-        console.log("POLYPOINTS:");
-        console.log(this.polygonPoints);
-        console.log("");
-
         var newArrayCounter = 0;
-        for (var i = 0; i < Math.ceil(this.polygonPoints.length / 4); i++) {
+        for (var i = 0; i < Math.ceil(this.points.length / 4); i++) {
 
           var newArray = [];
 
           for (var j = i * 4; j < (i * 4) + 4; j++) {
-            if (j < this.polygonPoints.length) {
+            if (j < this.points.length) {
               newArray.push({
-                x: this.polygonPoints[j].x,
-                y: this.polygonPoints[j].y
+                x: this.points[j].x,
+                y: this.points[j].y
               });
             }
           }
@@ -267,8 +246,6 @@ class Editor {
           isSensor: false,
           vertices: vertices
         });
-
-        
 
         break;
       }
@@ -442,7 +419,7 @@ class Editor {
       bg.setScale(1 / this.scene.cameras.main.zoom);
     }
     
-    if (this.points.length > 0) {
+    if (this.points.length > 0 && this.polygonStarted) {
 
       if (this.currentLineOverlay) {
         this.currentLineOverlay.destroy();

@@ -88,10 +88,29 @@ class InAppWindow {
   }
 }
 
+class FixtureSelectorWindow extends InAppWindow {
+  constructor() {
+    super({
+      id: "window-view-fixture-selector",
+      titleCaption: "Fixture Selector",
+      width: 320,
+      height: 600
+    });
+
+    var heading = document.createElement("h3");
+    heading.innerHTML = "Fixtures";
+    heading.setAttribute("class", "heading-s");
+    heading.style.textAlign = "center";
+    this.addToWindowContent(heading);
+
+
+  }
+}
+
 class ImageEditorWindow extends InAppWindow {
   constructor() {
     super({
-      id: "window-view-editor",
+      id: "window-view-image-editor",
       titleCaption: "Image Editor",
       width: 320,
       height: 400
@@ -117,7 +136,7 @@ class ImageEditorWindow extends InAppWindow {
 class FixtureEditorWindow extends InAppWindow {
   constructor() {
     super({
-      id: "window-view-editor",
+      id: "window-view-fixture-editor",
       titleCaption: "Fixture Editor",
       width: 320,
       height: 400
@@ -315,6 +334,12 @@ for (var i = 0; i < btnMenuItems.length; i++) {
 
   });
 }
+
+var btnViewFixtureSelector = document.createElement("btn-view-fixture-selector");
+btnViewFixtureSelector.addEventListener("click", function() {
+  var selector = new FixtureSelectorWindow();
+  inAppWindowManager.add(selector);
+});
 
 var btnViewImageEditor = document.getElementById("btn-view-image-editor");
 btnViewImageEditor.addEventListener("click", function() {
