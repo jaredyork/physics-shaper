@@ -246,6 +246,12 @@ var config = {
 
 var app = new Phaser.Game(config);
 
+function initializeCanvas() {
+  var canvas = document.getElementsByTagName("CANVAS")[0];
+
+  canvas.setAttribute("id", "app-canvas");
+}
+
 var inAppWindowManager = new InAppWindowManager();
 
 var isMouseDown = false;
@@ -295,6 +301,7 @@ function loadThemes() {
 }
 
 window.addEventListener("DOMContentLoaded", function() {
+  initializeCanvas();
   loadThemes();
 });
 
@@ -432,6 +439,7 @@ window.addEventListener("click", function(evt) {
     }
   }
   else {
+    
     // Hide all elements with menuitem-content classes
     var menuItemContents = document.getElementsByClassName("menuitem-content");
     for (var i = 0; i < menuItemContents.length; i++) {

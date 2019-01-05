@@ -23,6 +23,20 @@ body {
   z-index: 1;
 }
 
+.statusstrip-bottom {
+  position: fixed;
+  z-index: 20;
+  bottom: 0;
+  left: 0;
+  width: 100%;
+  background: white;
+}
+
+.statusstrip-bottom.left-aligned div {
+  float: right;
+  padding: 4px 16px 4px 4px;
+}
+
 .btn-menuitem {
   padding: 6px 12px 6px 12px;
 }

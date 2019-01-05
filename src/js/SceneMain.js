@@ -59,125 +59,17 @@ class Editor {
     });
     this.pixelCursor.setDepth(9);
 
-    this.scene.input.on("pointerdown", function(pointer) {
-
-      if (!this.polygonCreated) {
-        var wx = pointer.worldX;
-        var wy = pointer.worldY;
-
-        var hasConnectedAsShape = false;
-        for (var i = 0; i < this.pointIcons.getChildren().length; i++) {
-          var icon = this.pointIcons.getChildren()[i];
-    
-          var dist = Phaser.Math.Distance.Between(
-            wx,
-            wy,
-            icon.x,
-            icon.y
-          );
-    
-          if (dist < 4) {
-            if (pointer.rightButtonDown()) {
-              if (icon) {
-                icon.destroy();
-              }
-            }
-            else {
-              hasConnectedAsShape = true;
-            }
-          }
-        }
-
-        if (!pointer.rightButtonDown()) {
-          if (!hasConnectedAsShape) {
-            var icon = this.scene.add.sprite(wx, wy, "sprIconPoint");
-            icon.setDepth(10);
-            icon.setTint(0x33CCFF);
-      
-            this.pointIcons.add(icon);
-      
-            this.points.push(new Point(wx, wy));
-
-            if (this.points.length > 1) {
-              var graphics = this.scene.add.graphics({
-                lineStyle: { width: 1, color: 0x000000 }
-              });
-              var line = new Phaser.Geom.Line(
-                this.points[this.points.length - 2].x,
-                this.points[this.points.length - 2].y,
-                this.points[this.points.length - 1].x,
-                this.points[this.points.length - 1].y
-              );
-              graphics.strokeLineShape(line);
-              this.lineOverlays.add(graphics);
-            }
-            else {
-              this.polygonStarted = true;
-            }
-
-            if (this.polygonOverlay) {
-              this.polygonOverlay.destroy();
-            }
-
-            this.polygonOverlay = this.scene.add.graphics();
-            this.polygonOverlay.setAlpha(0.5);
-
-            var poly = new Phaser.Geom.Polygon(this.convertPointsToPolygonArray(this.points));
-            this.polygonOverlay.fillStyle(0x0000FF);
-            this.polygonOverlay.fillPoints(poly.points, true);
-
-            this.polygonCreated = false;
-          }
-          else {
-
-            /*
-            // Copy points from 'points' to 'polygonPoints'
-            for (var i = 0; i < this.points.length; i++) {
-              this.polygonPoints.push(this.points[i]);
-            }
-            this.points.length = 0;*/
-
-            if (this.currentLineOverlay) {
-              this.currentLineOverlay.destroy();
-            }
-
-            if (this.points.length > 1) {
-              var graphics = this.scene.add.graphics({
-                lineStyle: { width: 1, color: 0x000000 }
-              });
-              var line = new Phaser.Geom.Line(
-                this.points[this.points.length - 1].x,
-                this.points[this.points.length - 1].y,
-                this.points[0].x,
-                this.points[0].y
-              );
-              graphics.strokeLineShape(line);
-              this.lineOverlays.add(graphics);
-            }
-
-            if (this.polygonOverlay) {
-              this.polygonOverlay.destroy();
-            }
-            
-            this.polygonOverlay = this.scene.add.graphics();
-            this.polygonOverlay.setAlpha(0.5);
-
-            var poly = new Phaser.Geom.Polygon(this.convertPointsToPolygonArray(this.points));
-            this.polygonOverlay.fillStyle(0x000000FF);
-            this.polygonOverlay.fillPoints(poly.points, true);
-
-            this.polygonCreated = true;
-            this.polygonStarted = false;
-          }
-        }
-        else {
-
-        }
-      }
-
-    }, this);
-
     this.scene.cameras.main.centerOn(0, 0);
+
+    this.lastPointerDown = false;
+
+    this.scene.input.on("pointermove", function(pointer) {
+      let wx = Math.round(pointer.worldX);
+      let wy = Math.round(pointer.worldY);
+
+      var tbCursorPos = document.getElementById("status-cursor-pos");
+      tbCursorPos.value = wx + ", " + wy;
+    }, this);
 
   }
 
@@ -387,6 +279,124 @@ class Editor {
 
   update(delta) {
 
+    if (!this.lastPointerDown && this.scene.input.activePointer.isDown) {
+      let pointer = this.scene.input.activePointer;
+
+      if (!this.polygonCreated) {
+        var wx = pointer.worldX;
+        var wy = pointer.worldY;
+        
+        var hasConnectedAsShape = false;
+        for (var i = 0; i < this.pointIcons.getChildren().length; i++) {
+          var icon = this.pointIcons.getChildren()[i];
+    
+          var dist = Phaser.Math.Distance.Between(
+            wx,
+            wy,
+            icon.x,
+            icon.y
+          );
+    
+          if (dist < 4) {
+            if (pointer.rightButtonDown()) {
+              if (icon) {
+                icon.destroy();
+              }
+            }
+            else {
+              hasConnectedAsShape = true;
+            }
+          }
+        }
+
+        if (!pointer.rightButtonDown()) {
+          if (!hasConnectedAsShape) {
+            var icon = this.scene.add.sprite(wx, wy, "sprIconPoint");
+            icon.setDepth(10);
+            icon.setTint(0x33CCFF);
+      
+            this.pointIcons.add(icon);
+      
+            this.points.push(new Point(wx, wy));
+
+            if (this.points.length > 1) {
+              var graphics = this.scene.add.graphics({
+                lineStyle: { width: 1, color: 0x000000 }
+              });
+              var line = new Phaser.Geom.Line(
+                this.points[this.points.length - 2].x,
+                this.points[this.points.length - 2].y,
+                this.points[this.points.length - 1].x,
+                this.points[this.points.length - 1].y
+              );
+              graphics.strokeLineShape(line);
+              this.lineOverlays.add(graphics);
+            }
+            else {
+              this.polygonStarted = true;
+            }
+
+            if (this.polygonOverlay) {
+              this.polygonOverlay.destroy();
+            }
+
+            this.polygonOverlay = this.scene.add.graphics();
+            this.polygonOverlay.setAlpha(0.5);
+
+            var poly = new Phaser.Geom.Polygon(this.convertPointsToPolygonArray(this.points));
+            this.polygonOverlay.fillStyle(0x0000FF);
+            this.polygonOverlay.fillPoints(poly.points, true);
+
+            this.polygonCreated = false;
+          }
+          else {
+
+            /*
+            // Copy points from 'points' to 'polygonPoints'
+            for (var i = 0; i < this.points.length; i++) {
+              this.polygonPoints.push(this.points[i]);
+            }
+            this.points.length = 0;*/
+
+            if (this.currentLineOverlay) {
+              this.currentLineOverlay.destroy();
+            }
+
+            if (this.points.length > 1) {
+              var graphics = this.scene.add.graphics({
+                lineStyle: { width: 1, color: 0x000000 }
+              });
+              var line = new Phaser.Geom.Line(
+                this.points[this.points.length - 1].x,
+                this.points[this.points.length - 1].y,
+                this.points[0].x,
+                this.points[0].y
+              );
+              graphics.strokeLineShape(line);
+              this.lineOverlays.add(graphics);
+            }
+
+            if (this.polygonOverlay) {
+              this.polygonOverlay.destroy();
+            }
+            
+            this.polygonOverlay = this.scene.add.graphics();
+            this.polygonOverlay.setAlpha(0.5);
+
+            var poly = new Phaser.Geom.Polygon(this.convertPointsToPolygonArray(this.points));
+            this.polygonOverlay.fillStyle(0x000000FF);
+            this.polygonOverlay.fillPoints(poly.points, true);
+
+            this.polygonCreated = true;
+            this.polygonStarted = false;
+          }
+        }
+        else {
+
+        }
+      }
+    }
+
     for (var i = 0; i < this.pointIcons.getChildren().length; i++) {
       var icon = this.pointIcons.getChildren()[i];
 
@@ -442,6 +452,12 @@ class Editor {
     this.pixelCursor.strokeRectShape(cursorGeom);
 
     this.pixelCursor.lineStyle.width = 1 / this.scene.cameras.main.zoom;
+
+    this.lastPointerDown = this.scene.input.activePointer.isDown;
+
+    // Update the camera zoom in the status bar
+    var tbCameraZoom = document.getElementById("status-camera-zoom");
+    tbCameraZoom.value = Math.round(this.scene.cameras.main.zoom * 100) + "%";
   }
 }
 
