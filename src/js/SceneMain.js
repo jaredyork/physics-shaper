@@ -390,6 +390,9 @@ class Editor {
             this.polygonCreated = true;
             this.polygonStarted = false;
           }
+
+          var tbLineAngle = document.getElementById("status-line-angle");
+          tbLineAngle.value = "N/A";
         }
         else {
 
@@ -440,6 +443,14 @@ class Editor {
       );
 
       this.currentLineOverlay.strokeLineShape(line);
+
+      // Show the line angle in the status bar
+      let lineAngle = Math.atan2(
+        this.scene.input.activePointer.worldX - this.points[this.points.length - 1].x,
+        this.scene.input.activePointer.worldY - this.points[this.points.length - 1].y
+      ) * (180 / Math.PI);
+      var tbLineAngle = document.getElementById("status-line-angle");
+      tbLineAngle.value = Number(lineAngle).toFixed(2);
     }
 
     var cursorGeom = new Phaser.Geom.Rectangle(
@@ -458,6 +469,9 @@ class Editor {
     // Update the camera zoom in the status bar
     var tbCameraZoom = document.getElementById("status-camera-zoom");
     tbCameraZoom.value = Math.round(this.scene.cameras.main.zoom * 100) + "%";
+
+    this.lastCameraPos = new Phaser.Math.Vector2(this.scene.cameras.main.x, this.scene.cameras.main.y);
+  
   }
 }
 

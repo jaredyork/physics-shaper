@@ -28,6 +28,17 @@ body {
   background: #094771;
 }
 
+.statusstrip-bottom {
+  color: #CCCCCC;
+  background: #333333;
+}
+
+.statusstrip-bottom input[type="text"] {
+  color: white;
+  background: #292929;
+  border: 1px solid #292929;
+}
+
 .in-app-window-content-wrapper {
   background: #1e1e1e;
   border-right: 2px solid #222;
@@ -108,4 +119,8 @@ body {
 
 p {
   color: #929292;
+}
+
+.iframe-fixture-selector {
+  background: #292929;
 }

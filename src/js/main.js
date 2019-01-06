@@ -104,11 +104,29 @@ class FixtureSelectorWindow extends InAppWindow {
     this.addToWindowContent(heading);
 
     var iframe = document.createElement("iframe");
+    iframe.setAttribute("class", "iframe-fixture-selector");
     iframe.style.background = "#e9e9e9";
     iframe.style.display = "block";
     iframe.style.width = "100%";
     iframe.style.height = (this.windowHeight - 128) + "px";
     iframe.style.border = "1px solid #000000";
+
+    iframe.innerHTML = "<!DOCTYPE html><html><head></head><body></html>";
+
+    var folderName = window.localStorage.getItem("theme");
+
+    console.log(iframe);
+    var iframeDocument = iframe.document;
+    // Remove the existing linked theme first
+    iframeDocument.getElementById("theme-file").remove();
+
+    // Add the theme link
+    var link = document.createElement("link");
+    link.setAttribute("id", "theme-file");
+    link.setAttribute("rel", "stylesheet");
+    link.setAttribute("type", "text/css");
+    link.setAttribute("href", "css/themes/theme_" + folderName + "/styles.css");
+    iframeDocument.getElementsByTagName("head")[0].appendChild(link);
     
     var fixtureSelectorContainer = document.createElement("div");
     iframe.appendChild(fixtureSelectorContainer);
@@ -256,6 +274,7 @@ var inAppWindowManager = new InAppWindowManager();
 
 var isMouseDown = false;
 var windowDragged = null;
+var windowDragOffset = { x: 0, y: 0 };
 
 function setTheme(folderName) {
 
@@ -474,10 +493,26 @@ window.addEventListener("mousedown", function(evt) {
   else if (evt.target.className == "in-app-window-titlebar") {
     var win = evt.target.parentNode;
 
+    var winX = win.style.left.split('px')[0];
+    var winY = win.style.top.split('px')[0];
+
+    windowDragOffset = {
+      x: evt.x - winX,
+      y: evt.y - winY
+    };
+
     windowDragged = win;
   }
   else if (evt.target.className == "in-app-window-title") {
     var win = evt.target.parentNode.parentNode;
+
+    var winX = win.style.left.split('px')[0];
+    var winY = win.style.top.split('px')[0];
+
+    windowDragOffset = {
+      x: evt.x - winX,
+      y: evt.y - winY
+    };
 
     windowDragged = win;
   }
@@ -486,6 +521,8 @@ window.addEventListener("mousedown", function(evt) {
 window.addEventListener("mouseup", function() {
   isMouseDown = false;
 
+  windowDragOffset = { x: 0, y: 0 };
+
   windowDragged = null;
 });
 
@@ -493,8 +530,21 @@ window.addEventListener("mousemove", function(evt) {
   
   if (isMouseDown) {      
     if (windowDragged !== null) {
-      windowDragged.style.top = (evt.y - (16)) + "px";
-      windowDragged.style.left = (evt.x - (windowDragged.displayWidth * 0.5)) + "px";
+
+      var winX = windowDragged.style.left.split('px')[0];
+      var winY = windowDragged.style.top.split('px')[0];
+
+      console.log(windowDragOffset);
+
+      var pos = {
+        x: (evt.x - windowDragOffset.x),
+        y: (evt.y - windowDragOffset.y)
+      };
+
+      console.log(pos);
+
+      windowDragged.style.top = pos.y + "px";
+      windowDragged.style.left = pos.x + "px";
     }
 
   }
