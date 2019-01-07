@@ -534,14 +534,10 @@ window.addEventListener("mousemove", function(evt) {
       var winX = windowDragged.style.left.split('px')[0];
       var winY = windowDragged.style.top.split('px')[0];
 
-      console.log(windowDragOffset);
-
       var pos = {
         x: (evt.x - windowDragOffset.x),
         y: (evt.y - windowDragOffset.y)
       };
-
-      console.log(pos);
 
       windowDragged.style.top = pos.y + "px";
       windowDragged.style.left = pos.x + "px";
