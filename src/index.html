@@ -11,7 +11,7 @@
     <link rel="stylesheet" type="text/css" href="css/styles.css">
 
     <!-- Load JavaScript -->
-    <script src="js/lib/phaser.js"></script>
+    <script src="js/lib/phaser.min.js"></script>
 
     <link id="theme-file" rel="stylesheet" type="text/css" href="css/themes/theme_dark/styles.css">
 
@@ -19,6 +19,7 @@
 
   <body oncontextmenu="return false;">
     <input type="file" style="display: none;" accept="image/*" id="input-load-image" />
+    <input type="file" style="display: none;" accept="application/JSON" id="input-load-json" />
     <div class="menustrip">
       <div class="menuitem">
         <input id="btn-menustrip-file" type="checkbox" class="fake-checkbox">
@@ -26,6 +27,7 @@
         <div class="menuitem-content">
           <a href="#" id="btn-new">New</a>
           <a href="#" id="btn-load-image" >Load Image</a>
+          <a href="#" id="btn-load-json">Load JSON</a>
           <a href="#">Save</a>
           <a href="#" id="btn-export">Export</a>
         </div>

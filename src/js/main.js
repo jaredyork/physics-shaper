@@ -88,6 +88,78 @@ class InAppWindow {
   }
 }
 
+class JSONLoadWindow extends InAppWindow {
+  constructor(jsonData) {
+    super({
+      id: "window-view-json-load",
+      titleCaption: "Load JSON Shape Definitions",
+      width: 320,
+      height: 400
+    });
+
+    var heading = document.createElement("h3");
+    heading.innerHTML = "Load Images";
+    heading.setAttribute("class", "heading-s");
+    heading.style.textAlign = "center";
+    this.addToWindowContent(heading);
+
+    var images = [];
+
+    console.log(jsonData);
+
+    var layerIndex = 0;
+    for (var key in jsonData) {
+      var canAdd = true;
+
+      if (key === "generator_info") {
+        canAdd = false;
+      }
+
+      if (canAdd) {
+        if (jsonData.hasOwnProperty(key)) {
+          var item = [
+            jsonData[key]["label"],
+            "json_layer_" + layerIndex,
+            false
+          ]
+          images.push(item);
+        }
+      }
+
+      layerIndex++;
+    }
+
+    var scrollChecklist = createScrollChecklist("Select Images", "json-select-images", images);
+    this.addToWindowContent(scrollChecklist);
+
+    var btnLoad = document.createElement("button");
+    btnLoad.setAttribute("class", "btn-primary");
+    btnLoad.setAttribute("id", "btn-json-load");
+    btnLoad.innerHTML = "Load";
+    btnLoad.addEventListener("click", function(evt) {
+
+      // Get the scrollbox div inside images scroll checklist
+      var scrollChecklistDiv = scrollChecklist.getElementsByClassName("input-form-scrollbox")[0];
+      var checkboxLabels = scrollChecklistDiv.getElementsByTagName("label");
+
+      var imagesToLoad = [];
+
+      for (var i = 0; i < checkboxLabels.length; i++) {
+        var checkbox = scrollChecklistDiv.getElementsByTagName("input")[i];
+        if (checkbox.checked) {
+          imagesToLoad.push(checkboxLabels[i].innerHTML);
+        }
+      }
+
+      editor.loadJSONData(jsonData, imagesToLoad);
+
+      inAppWindowManager.remove(this);
+      document.getElementsByTagName("body")[0].removeChild(this.window);
+    }.bind(this));
+    this.addToWindowContent(btnLoad);
+  }
+}
+
 class FixtureSelectorWindow extends InAppWindow {
   constructor() {
     super({
@@ -251,6 +323,46 @@ function createCheckbox(labelName, id) {
   return p;
 }
 
+function createScrollChecklist(labelName, id, items) {
+
+  var p = document.createElement("p");
+
+  var label = document.createElement("label");
+  label.innerHTML = labelName;
+  p.appendChild(label);
+
+  var scrollbox = document.createElement("div");
+  scrollbox.setAttribute("class", "input-form-scrollbox");
+
+  for (var i = 0; i < items.length; i++) {
+
+    var item = items[i];
+  
+    var input = document.createElement("input");
+    input.setAttribute("type", "checkbox");
+    input.setAttribute("id", item[1])
+    if (item[3] !== undefined) {
+      if (item[3]) { // if the default item value is true, check the checkbox by default
+        input.setAttribute("checked", "checked");
+      }
+    }
+    scrollbox.appendChild(input);
+
+    var label = document.createElement("label");
+    label.setAttribute("for", item[1]);
+    label.innerHTML = item[0];
+    scrollbox.appendChild(label);
+
+    var br = document.createElement("br");
+    scrollbox.appendChild(br);
+
+  }
+
+  p.appendChild(scrollbox);
+
+  return p;
+}
+
 var config = {
   type: Phaser.AUTO,
   parent: 'app-canvas',
@@ -314,7 +426,10 @@ function loadThemes() {
   themeList.appendChild(addThemeButton("Dark", "dark"));
 
   // Load existing theme stored in localStorage, if one exists
-  if (window.localStorage.getItem("theme") !== undefined) {
+  if (window.localStorage.getItem("theme") === undefined) {
+    setTheme("light");
+  }
+  else {
     setTheme(window.localStorage.getItem("theme"));
   }
 }
@@ -328,7 +443,11 @@ function showLoadImageDialog() {
   document.getElementById("input-load-image").click();
 }
 
-function handleFileSelect(evt) {
+function showLoadJSONDialog() {
+  document.getElementById("input-load-json").click();
+}
+
+function handleImageLoad(evt) {
   var file = evt.target.files[0];
 
   if (file !== undefined) {
@@ -352,8 +471,32 @@ function handleFileSelect(evt) {
   }
 }
 
+function handleJSONLoad(evt) {
+  var file = evt.target.files[0];
+
+  if (file != undefined) {
+
+    if (!file.type.match('application/json')) {
+      console.warn("File uploaded is not in JSON format!  Aborted loading.");
+    }
+
+    var reader = new FileReader();
+
+    reader.onload = (function(theFile) {
+      return function(e) {
+        var jsonData = JSON.parse(e.target.result);
+
+        var properties = new JSONLoadWindow(jsonData);
+        inAppWindowManager.add(properties);
+      }
+    })(file);
+
+    reader.readAsText(file);
+  }
+}
+
 window.addEventListener("resize", function() {
-  app.resize(window.innerWidth, window.innerHeight - 32);
+  //app.resize(window.innerWidth, window.innerHeight - 32);
   app.scene.scenes[0].cameras.resize(window.innerWidth, window.innerHeight - 32);
 });
 
@@ -367,8 +510,16 @@ btnLoadImage.addEventListener("click", function() {
   showLoadImageDialog();
 });
 
+var btnLoadJSON = document.getElementById("btn-load-json");
+btnLoadJSON.addEventListener("click", function() {
+  showLoadJSONDialog();
+});
+
 var inputLoadImage = document.getElementById("input-load-image");
-inputLoadImage.addEventListener("change", handleFileSelect, false);
+inputLoadImage.addEventListener("change", handleImageLoad, false);
+
+var inputLoadJSON = document.getElementById("input-load-json");
+inputLoadJSON.addEventListener("change", handleJSONLoad, false);
 
 var btnExport = document.getElementById("btn-export");
 btnExport.addEventListener("click", function() {
@@ -467,7 +618,7 @@ window.addEventListener("click", function(evt) {
 
     if (evt.target.className == "btn-in-app-window-close") {
       var win = evt.target.parentNode.parentNode;
-
+      console.log("X WIN: ", win);
       inAppWindowManager.remove(win.inAppWindowInstance);
 
       document.getElementsByTagName("body")[0].removeChild(win);

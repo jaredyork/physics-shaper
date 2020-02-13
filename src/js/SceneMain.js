@@ -217,6 +217,61 @@ class Editor {
     amountLoadedImages++;
   }
 
+  loadJSONData(jsonData, imagesToLoad) {
+
+    var imageToLoad = imagesToLoad[0];
+
+    var imageJSON = jsonData[imageToLoad];
+
+    var fixture = imageJSON["fixtures"][0];
+    var vertices = fixture["vertices"];
+
+    this.clearAllPoints();
+
+    for (var i = 0; i < vertices.length; i++) {
+      var vertice = vertices[i];
+
+      // Create needed overlays
+      var polygonOverlay = this.scene.add.graphics();
+      polygonOverlay.setAlpha(0.5);
+      var points = [];
+      var pointIcons = this.scene.add.group();
+
+
+      // Iterate through each point in the vertice
+      for (var j = 0; j < vertice.length; j++) {
+        var coords = vertice[j];
+
+        var x = coords["x"];
+        var y = coords["y"];
+
+        points.push(new Point(x, y));
+
+        var icon = this.scene.add.sprite(x, y, "sprIconPoint");
+        icon.setDepth(10);
+        icon.setTint(0x33CCFF);
+  
+        pointIcons.add(icon);
+      }
+      
+
+      if (polygonOverlay) {
+        polygonOverlay.destroy();
+      }
+
+      polygonOverlay = this.scene.add.graphics();
+      polygonOverlay.setAlpha(0.5);
+
+      var poly = new Phaser.Geom.Polygon(this.convertPointsToPolygonArray(points));
+      polygonOverlay.fillStyle(0x0000FF);
+      polygonOverlay.fillPoints(poly.points, true);
+    }
+
+
+    console.log(imageToLoad, imageJSON);
+
+  }
+
   initialize() {
     this.createTransparentBackground();
   }

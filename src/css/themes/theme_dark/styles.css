@@ -81,9 +81,22 @@ body {
   background: #d61424;
 }
 
+.btn-primary {
+  color: #ffffff;
+  background: #333333;
+}
+
+.btn-primary:hover {
+  background: #094771;
+}
+
 .input-form {
   padding-top: 8px;
   padding-bottom: 8px;
+}
+
+.input-form-scrollbox {
+  color: white;
 }
 
 .txtfield {
