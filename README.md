@@ -1,5 +1,5 @@
 # physics-shaper
-An open source editor for defining physics shapes, exportable to a variety of frameworks.
+PhysicsShaper is an open source editor for defining physics shapes, exportable to a variety of frameworks.
 
 ![](https://i.imgur.com/oOXaUXh.gif)
 
