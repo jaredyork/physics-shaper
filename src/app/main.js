@@ -6,6 +6,7 @@ class EditorWorkspace {
         this.scene = scene;
 
         this.objectIdIterator = 0;
+        this.fixtureIdIterator = 0;
         this.objectData = []; // an array of object data, one element per object
         this.openObjectId = 0;
 
@@ -99,7 +100,6 @@ class EditorWorkspace {
                     console.log(vertexSprite.scaleX);
                     this.vertexSprites.add(vertexSprite);
                 }
-
             }
         }.bind(this));
     }
@@ -123,6 +123,27 @@ class EditorWorkspace {
         this.loadObject(object.id);
     }
 
+    getDefaultFixtureData() {
+        return {
+            label: 'untitled fixture',
+            isSensor: false,
+            vertices: []
+        };
+    }
+
+    createFixture(args) {
+        let fixture = this.getDefaultFixtureData();
+        fixture.id = this.fixtureIdIterator;
+        this.fixtureIdIterator++;
+
+        if (args.vertices !== undefined && args.vertices !== null) {
+            fixture.vertices = args.vertices;
+        }
+        
+        args.object.fixtures.push(fixture);
+
+        this.loadObject();
+    }
 
     onScrollWheelChanged(delta) {
 
@@ -143,9 +164,7 @@ class EditorWorkspace {
     update() {
         this.amountVerticesHoveredOver = 0;
         this.isHoveringOverVertex = false;
-        if (this.amountVerticesHoveredOver > 0) {
-            this.isHoveringOverVertex = true;
-        }
+        this.isDraggingVertex = false;
 
         if (this.openObjectId !== null) {
             let object = this.getObject(this.openObjectId);
@@ -168,12 +187,20 @@ class EditorWorkspace {
                         vertexSprite.setTint(0xff0000);
 
                         this.amountVerticesHoveredOver++;
+
+                        if (this.scene.isMouseDown) {
+                            this.isDraggingVertex = true;
+                        }
                     }
                     else {
                         vertexSprite.setTint(0xffffff);
                     }
                 }
             }.bind(this));
+        }
+
+        if (this.amountVerticesHoveredOver > 0) {
+            this.isHoveringOverVertex = true;
         }
     }
 }
@@ -228,6 +255,21 @@ class EditorScene extends Phaser.Scene {
         this.amountTicksMouseDown = 0;
     }
 
+    recenterView() {
+        this.cameras.main.centerOn(
+            this.cameras.main.worldView.width * 0.5,
+            this.cameras.main.worldView.height * 0.5
+        );
+    }
+
+    resetZoom() {
+        this.cameras.main.setZoom(1);
+
+        let object = this.editorWorkspace.getObject(this.editorWorkspace.openObjectId);
+        this.editorWorkspace.flushGraphics();
+        this.editorWorkspace.renderObjectWithOverlays(object);
+    }
+
     update() {
         this.lastIsMouseDown = this.isMouseDown;
         this.isMouseDown = this.input.activePointer.isDown;
@@ -239,13 +281,14 @@ class EditorScene extends Phaser.Scene {
         let cameraCenterX = this.cameras.main.worldView.x + (this.cameras.main.worldView.width * 0.5);
         let cameraCenterY = this.cameras.main.worldView.y + (this.cameras.main.worldView.height * 0.5);
 
+        console.log(this.editorWorkspace.isHoveringOverVertex);
+
         if (!this.lastIsMouseDown && this.isMouseDown && !this.editorWorkspace.isHoveringOverVertex) {
             this.cameraDragging = true;
             this.cameraDragOrigin = new Phaser.Math.Vector2(
                 this.input.activePointer.x,
                 this.input.activePointer.y
             );
-            console.log('just down');
         }
         else if (this.lastIsMouseDown && !this.isMouseDown) {
             this.cameraDragOrigin = new Phaser.Math.Vector2(
@@ -254,8 +297,6 @@ class EditorScene extends Phaser.Scene {
             );
             this.cameraDragging = false;
         }
-
-        console.log('camera drag origin: ', cameraCenterX, cameraCenterY);
 
         if (this.cameraDragging) {
             let moveDelta = new Phaser.Math.Vector2(
@@ -280,12 +321,25 @@ class EditorScene extends Phaser.Scene {
 
 class Editor {
     constructor() {
+        this.gameConfig = {
+            type: Phaser.AUTO,
+            scale: {
+                mode: Phaser.Scale.RESIZE,
+                parent: 'canvas-container',
+                width: window.innerWidth - 32,
+            },
+            transparent: true,
+            scene: [EditorBootScene, EditorScene]
+        };
+        this.game = new Phaser.Game(this.gameConfig);
+
         this.editorWindowManager = new EditorWindowManager();
 
         // Define an object that stores the on-click functions for menu items
         this.menuBar = {
             onClick: {
                 file: {},
+                view: {},
                 help: {}
             }
         };
@@ -306,6 +360,13 @@ class Editor {
             nw.App.closeAllWindows();
         };
 
+        this.menuBar.onClick.view.recenterView = function() {
+            this.game.scene.scenes[1].recenterView();
+        }.bind(this);
+
+        this.menuBar.onClick.view.resetZoom = function() {
+            this.game.scene.scenes[1].resetZoom();
+        }.bind(this);
 
         this.menuBar.onClick.help.aboutPhysicsShaper = function() {
             let helpWindow = new EditorAboutWindow();
@@ -316,20 +377,6 @@ class Editor {
         this.menuBar.onClick.help.findUsOnGithub = function() {
             gui.Shell.openExternal('https://github.com/jaredyork/physics-shaper');
         };
-
-                
-        this.gameConfig = {
-            type: Phaser.AUTO,
-            scale: {
-                mode: Phaser.Scale.RESIZE,
-                parent: 'canvas-container',
-                autoCenter: Phaser.Scale.CENTER_BOTH,
-                width: window.innerWidth - 32,
-            },
-            transparent: true,
-            scene: [EditorBootScene, EditorScene]
-        };
-        this.game = new Phaser.Game(this.gameConfig);
     }
 }
 
@@ -341,11 +388,11 @@ class MenuBar extends nw.Menu {
     setup(editor) {
         this.submenuFile = new nw.Menu();
         this.submenuFile.append(new nw.MenuItem({
-            label: 'New workspace',
+            label: 'New Workspace',
             click: editor.menuBar.onClick.file.newWorkspace
         }));
         this.submenuFile.append(new nw.MenuItem({
-            label: 'Open workspace',
+            label: 'Open Workspace',
             click: editor.menuBar.onClick.file.openWorkspace
         }));
         this.submenuFile.append(new nw.MenuItem({ type: 'separator' }));
@@ -360,6 +407,18 @@ class MenuBar extends nw.Menu {
         }));
 
 
+        this.submenuView = new nw.Menu();
+        this.submenuView.append(new nw.MenuItem({
+            label: 'Recenter View',
+            click: editor.menuBar.onClick.view.recenterView
+        }));
+        this.submenuView.append(new nw.MenuItem({
+            label: 'Reset Zoom',
+            click: editor.menuBar.onClick.view.resetZoom
+        }));
+
+
+
         this.submenuHelp = new nw.Menu();
         this.submenuHelp.append(new nw.MenuItem({
             label: 'About Physics Shaper',
@@ -367,14 +426,21 @@ class MenuBar extends nw.Menu {
         }));
 
         this.submenuHelp.append(new nw.MenuItem({
-            label: 'Find us on GitHub',
+            label: 'Find Us on GitHub',
             icon: 'assets/imgIconGitHubMark.png',
             click: editor.menuBar.onClick.help.findUsOnGithub
         }));
 
+        
+        
         this.append(new nw.MenuItem({
             label: 'File',
             submenu: this.submenuFile
+        }));
+
+        this.append(new nw.MenuItem({
+            label: 'View',
+            submenu: this.submenuView
         }));
 
         this.append(new nw.MenuItem({

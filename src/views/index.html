@@ -9,12 +9,17 @@
     <body>
         <div class="object-selection-ribbon">
             <div class="object-selection-ribbon-flex">
-                
+
             </div>
         </div>
         <div class="main-view-flex">
-            <div class="sidebar-left"></div>
-            <div class="canvas-container"></div>
+            <div class="sidebar-left">
+                <div class="sidebar-left-tools">
+                    <span id="btn-new-object"><img class="sidebar-tool-icon" src="../assets/imgIconNewObject.png" alt="New object" /></span>
+                    <span id="btn-add-fixture"><img class="sidebar-tool-icon" src="../assets/imgIconAddFixture.png" alt="Add fixture" /></span>
+                </div>
+            </div>
+            <div id="canvas-container"></div>
             <div class="sidebar-right"></div>
         </div>
         <script src="../app/phaser.min.js"></script>
