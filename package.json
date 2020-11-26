@@ -1,0 +1,12 @@
+{
+    "name": "physics-shaper",
+    "version": "1.0.0",
+    "devDependencies": {
+        "nw": "^0.50.0",
+        "nw-builder": "^3.5.7"
+    },
+    "scripts": {
+        "dev": "nw src/",
+        "prod": "nwbuild --platforms win32,win64,osx64,linux32,linux64 --buildDir dist/ src/"
+    }
+}

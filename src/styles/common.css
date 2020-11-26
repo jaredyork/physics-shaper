@@ -1,0 +1,135 @@
+/* CSS Reset */
+html, body, div, span, applet, object, iframe,
+h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+a, abbr, acronym, address, big, cite, code,
+del, dfn, em, img, ins, kbd, q, s, samp,
+small, strike, strong, sub, sup, tt, var,
+b, u, i, center,
+dl, dt, dd, ol, ul, li,
+fieldset, form, label, legend,
+table, caption, tbody, tfoot, thead, tr, th, td,
+article, aside, canvas, details, embed, 
+figure, figcaption, footer, header, hgroup, 
+menu, nav, output, ruby, section, summary,
+time, mark, audio, video {
+	margin: 0;
+	padding: 0;
+	border: 0;
+	font-size: 100%;
+	font: inherit;
+	vertical-align: baseline;
+}
+/* HTML5 display-role reset for older browsers */
+article, aside, details, figcaption, figure, 
+footer, header, hgroup, menu, nav, section {
+	display: block;
+}
+body {
+	line-height: 1;
+}
+ol, ul {
+	list-style: none;
+}
+blockquote, q {
+	quotes: none;
+}
+blockquote:before, blockquote:after,
+q:before, q:after {
+	content: '';
+	content: none;
+}
+table {
+	border-collapse: collapse;
+	border-spacing: 0;
+}
+
+
+/* Application styles here */
+
+/* NO SELECT + HIGHLIGHT COLOR */
+* {
+    user-select: none;
+}
+*::selection {
+    background: none;
+}
+*::-moz-selection {
+    background: none;
+}
+
+body {
+    background-image: url(../assets/imgBgTransparency.png);
+    overflow: hidden;
+}
+
+.main-view-flex {
+    display: flex;
+    flex-direction: row;
+}
+
+.win-title-bar {
+    width: 100%;
+    font-family: 'ubuntu-serif', sans-serif;
+}
+
+.win-title-bar-flex {
+    display: flex;
+    flex-direction: row;
+    width: 100%;
+}
+
+.win-title-bar-padding {
+    width: calc(100% - 48px);
+}
+
+.win-title-bar-window-controls {
+    display: flex;
+    flex-direction: row-reverse;
+    width: 48px;
+}
+
+.win-btn {
+    line-height: 1.5em;
+    border-radius: 12px;
+    text-align: center;
+}
+
+.win-btn-close {
+    color: #ffffff;
+    background: red;
+    width: 24px;
+    height: 24px;
+    text-align: center;
+    cursor: pointer;
+}
+
+h1.win-heading, h2.win-heading, h3.win-heading {
+    line-height: 1.75em;
+}
+
+h1.win-heading {
+    font-size: 1.5em;
+    font-weight: bold;
+}
+
+h2.win-heading {
+    font-size: 1.375em;
+    font-weight: bold;
+}
+
+h3.win-heading {
+    font-size: 1.25em;
+    font-weight: bold;
+}
+
+h1.win-heading.centered, h2.win-heading.centered, h3.win-heading.centered {
+    text-align: center;
+}
+
+p.centered {
+    text-align: center;
+}
+
+.win-container-content-padding {
+    padding: 16px 24px 16px 24px;
+}

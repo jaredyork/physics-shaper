@@ -1,0 +1,10 @@
+{
+    "name": "physics-shaper",
+    "version": "1.0.0",
+    "main": "views/index.html",
+    "window": {
+        "min_width": 400,
+        "min_height": 400,
+        "icon": "assets/icon.png"
+    }
+}
