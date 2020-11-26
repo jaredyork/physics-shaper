@@ -12,6 +12,10 @@ class EditorWorkspace {
         this.overlayGraphics = this.scene.add.graphics();
         this.overlayGraphics.setAlpha(0.5);
         this.vertexSprites = this.scene.add.group();
+
+        this.amountVerticesHoveredOver = 0;
+        this.isDraggingVertex = false;
+        this.isHoveringOverVertex = false;
     }
 
     flushGraphics() {
@@ -87,7 +91,8 @@ class EditorWorkspace {
                     let vertexSprite = this.scene.add.sprite(vertex.x, vertex.y, 'imgVertex');
                     vertexSprite.setScale(1 / this.scene.cameras.main.zoom);
 
-                    if (Phaser.Math.Distance.Between(vertex.x, vertex.y, this.scene.input.activePointer.x, this.scene.input.activePointer.y) < 16) {
+                    let dist = Phaser.Math.Distance.Between(vertex.x, vertex.y, this.scene.input.activePointer.x, this.scene.input.activePointer.y);
+                    if (dist < 16) {
                         vertexSprite.setTint(0xff0000);
                     }
 
@@ -136,10 +141,39 @@ class EditorWorkspace {
     }
 
     update() {
+        this.amountVerticesHoveredOver = 0;
+        this.isHoveringOverVertex = false;
+        if (this.amountVerticesHoveredOver > 0) {
+            this.isHoveringOverVertex = true;
+        }
+
         if (this.openObjectId !== null) {
             let object = this.getObject(this.openObjectId);
 
-            
+            object.fixtures.forEach(function(fixture) {
+                for (let i = 0; i < fixture.vertices.length; i++) {
+                    let vertex = fixture.vertices[i];
+                    
+                    let vertexSprite = null;
+                    for (let j = 0; j < this.vertexSprites.getChildren().length; j++) {
+                        let spr = this.vertexSprites.getChildren()[i];
+
+                        if (spr.x === vertex.x && spr.y === vertex.y) {
+                            vertexSprite = spr;
+                        }
+                    }
+
+                    let dist = Phaser.Math.Distance.Between(vertex.x, vertex.y, this.scene.input.activePointer.worldX, this.scene.input.activePointer.worldY);
+                    if (dist < 16) {
+                        vertexSprite.setTint(0xff0000);
+
+                        this.amountVerticesHoveredOver++;
+                    }
+                    else {
+                        vertexSprite.setTint(0xffffff);
+                    }
+                }
+            }.bind(this));
         }
     }
 }
@@ -202,16 +236,26 @@ class EditorScene extends Phaser.Scene {
 
         this.lastCameraDragOrigin = this.cameraDragOrigin;
 
-        if (!this.lastIsMouseDown && this.isMouseDown) {
+        let cameraCenterX = this.cameras.main.worldView.x + (this.cameras.main.worldView.width * 0.5);
+        let cameraCenterY = this.cameras.main.worldView.y + (this.cameras.main.worldView.height * 0.5);
+
+        if (!this.lastIsMouseDown && this.isMouseDown && !this.editorWorkspace.isHoveringOverVertex) {
             this.cameraDragging = true;
+            this.cameraDragOrigin = new Phaser.Math.Vector2(
+                this.input.activePointer.x,
+                this.input.activePointer.y
+            );
+            console.log('just down');
         }
         else if (this.lastIsMouseDown && !this.isMouseDown) {
             this.cameraDragOrigin = new Phaser.Math.Vector2(
-                this.cameras.main.originX,
-                this.cameras.main.originY
+                this.input.activePointer.x,
+                this.input.activePointer.y
             );
             this.cameraDragging = false;
         }
+
+        console.log('camera drag origin: ', cameraCenterX, cameraCenterY);
 
         if (this.cameraDragging) {
             let moveDelta = new Phaser.Math.Vector2(
@@ -219,9 +263,16 @@ class EditorScene extends Phaser.Scene {
                 this.input.activePointer.y - this.cameraDragOrigin.y
             );
 
-            this.cameras.main.centerOn(
-                this.cameraDragOrigin.x + moveDelta.x,
-                this.cameraDragOrigin.y + moveDelta.y
+            if (moveDelta.x != 0 || moveDelta.y != 0) {
+                this.cameras.main.centerOn(
+                    cameraCenterX - (moveDelta.x * (1 / this.cameras.main.zoom)),
+                    cameraCenterY - (moveDelta.y * (1 / this.cameras.main.zoom))
+                );
+            }
+
+            this.cameraDragOrigin = new Phaser.Math.Vector2(
+                this.input.activePointer.x,
+                this.input.activePointer.y
             );
         }
     }
