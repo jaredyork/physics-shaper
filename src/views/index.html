@@ -22,9 +22,14 @@
             <div id="canvas-container"></div>
             <div class="sidebar-right"></div>
         </div>
-        <script src="../app/phaser.min.js"></script>
+        <script src="../app/phaser/phaser.min.js"></script>
+        <script src="../app/poly-decomp-js/decomp.min.js"></script>
         <script src="../app/functions.js"></script>
         <script src="../app/ui.js"></script>
         <script src="../app/main.js"></script>
+
+        <input id="file-save-workspace" type="file" nwsaveas="physics-shaper-workspace.opsw" />
+        <input id="file-open-workspace" type="file" accept=".opsw" />
+        <input id="file-export-project" type="file" nwsaveas="physics-shape.ops" />
     </body>
 </html>
