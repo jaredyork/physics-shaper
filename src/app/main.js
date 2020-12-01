@@ -104,6 +104,10 @@ class EditorWorkspace {
     openWorkspace(data) {
         this.clearWorkspace();
 
+        this.objectIdIterator = data.objectIdIterator;
+        this.fixtureIdIterator = data.fixtureIdIterator;
+        this.openObjectId = data.openObjectId;
+
         // Copy objects from data to the array in this class instance
         for (let i = 0; i < data.objects.length; i++) {
             let objectJson = data.objects[i];
@@ -468,6 +472,9 @@ class EditorWorkspace {
 
     getWorkspaceData() {
         let workspaceData = {
+            objectIdIterator: this.objectIdIterator,
+            fixtureIdIterator: this.fixtureIdIterator,
+            openObjectId: this.openObjectId,
             objects: this.objects
         };
 
@@ -683,9 +690,6 @@ class EditorScene extends Phaser.Scene {
         }
 
         this.editorWorkspace.update();
-
-        console.log(this.elapsedTicksSinceLastClick, this.hasMouseDoubleClicked);
-
 
         if (this.cameraDragging) {
             let moveDelta = new Phaser.Math.Vector2(
