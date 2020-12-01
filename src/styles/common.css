@@ -60,6 +60,7 @@ table {
 body {
     background-image: url(../assets/imgBgTransparency.png);
     overflow: hidden;
+    font-family: helvetica, sans-serif;
 }
 
 .btn-primary, .btn-secondary {
@@ -124,6 +125,22 @@ body {
 .sidebar-left {
     width: 192px;
     border-right: 1px solid #b9b9b9;
+}
+
+.container-fields-padding {
+    padding: 4px;
+}
+
+.sidebar-fields-heading {
+    font-weight: bold;
+}
+
+.input-form {
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    margin-top: 4px;
+    margin-bottom: 4px;
 }
 
 #canvas-container {

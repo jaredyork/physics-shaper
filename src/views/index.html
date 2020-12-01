@@ -17,10 +17,25 @@
                 <div class="sidebar-left-tools">
                     <span id="btn-new-object"><img class="sidebar-tool-icon" src="../assets/imgIconNewObject.png" alt="New object" /></span>
                     <span id="btn-add-fixture"><img class="sidebar-tool-icon" src="../assets/imgIconAddFixture.png" alt="Add fixture" /></span>
+                    <span id="btn-add-circle"><img class="sidebar-tool-icon" src="../assets/imgIconAddCircle.png" alt="Add circle" /></span>
+                </div>
+
+                <div class="container-fields">
+                    <div class="container-fields-padding">
+                        <div id="container-fields-object">
+                            <h3 class="sidebar-fields-heading">Object Properties</h3>
+                            <p class="input-form"><label for="object-label">Label</label><input id="object-label" class="txtfield" type="text" size="12" /></p>
+                            <p class="input-form"><label for="object-is-static">Is Static?</label><input id="object-is-static" class="txtfield" type="checkbox" /></p>
+                            <p class="input-form"><label for="object-density">Density</label><input id="object-density" class="txtfield" size="4" /></p>
+                            <p class="input-form"><label for="object-restitution">Restitution</label><input id="object-restitution" class="txtfield" size="4" /></p>
+                            <p class="input-form"><label for="object-friction">Friction</label><input id="object-friction" class="txtfield" size="4" /></p>
+                            <p class="input-form"><label for="object-friction-air">Friction Air</label><input id="object-friction-air" class="txtfield" size="4" /></p>
+                            <p class="input-form"><label for="object-friction-static">Friction Static</label><input id="object-friction-static" class="txtfield" size="4" /></p>
+                        </div>
+                    </div>
                 </div>
             </div>
             <div id="canvas-container"></div>
-            <div class="sidebar-right"></div>
         </div>
         <script src="../app/phaser/phaser.min.js"></script>
         <script src="../app/poly-decomp-js/decomp.min.js"></script>
@@ -30,6 +45,6 @@
 
         <input id="file-save-workspace" type="file" nwsaveas="physics-shaper-workspace.opsw" />
         <input id="file-open-workspace" type="file" accept=".opsw" />
-        <input id="file-export-project" type="file" nwsaveas="physics-shape.ops" />
+        <input id="file-export-objects" type="file" nwsaveas="physics-shapes.json" />
     </body>
 </html>
