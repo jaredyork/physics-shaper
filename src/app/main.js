@@ -1,5 +1,6 @@
 var win = nw.Window.get();
-let gui = require('nw.gui');
+var gui = require('nw.gui');
+var fs = require('fs');
 
 class EditorObject {
     constructor() {
@@ -238,6 +239,14 @@ class EditorWorkspace {
                 thumbnailCtx.clearRect(0, 0, thumbnail.width, thumbnail.height);
 
                 object.fixtures.forEach(function(fixture) {
+                    if (fixture.circle !== null) {
+                        thumbnailCtx.save();
+                        thumbnailCtx.arc(fixture.circle.x, fixture.circle.y, fixture.circle.radius, 0, 2 * Math.PI, false);
+                        thumbnailCtx.fillStyle = '#0000ff';
+                        thumbnailCtx.fill();
+                        thumbnailCtx.restore();
+                    }
+
                     if (fixture.vertices !== null) {
                         let vertexPairs = PolyDecompUtilties.convertVerticesToArrayPairs(fixture.vertices);
 
@@ -315,9 +324,11 @@ class EditorWorkspace {
         object.fixtures.forEach(function(fixture) {
             if (fixture.circle !== undefined && fixture.circle !== null) {
                 let circle = new Phaser.Geom.Circle(fixture.circle.x, fixture.circle.y, fixture.circle.radius);
+                
+                this.fixtureOverlayGraphics.lineStyle(2 * (1 / this.scene.cameras.main.zoom), 0x000000);
+                this.fixtureOverlayGraphics.strokeCircleShape(circle);
 
                 this.fixtureOverlayGraphics.fillStyle(0x0000ff);
-
                 this.fixtureOverlayGraphics.fillCircleShape(circle);
             }
 
@@ -377,7 +388,7 @@ class EditorWorkspace {
 
                         let convexPolygonArray1D = PolyDecompUtilties.convertArrayPairsTo1DArray(convexPolygon);
                         let convexPolygonGeom = new Phaser.Geom.Polygon(convexPolygonArray1D);
-        
+                        
                         this.fixtureOverlayGraphics.lineStyle(1 / this.scene.cameras.main.zoom, 0x000000);
                         this.fixtureOverlayGraphics.beginPath();
                         for (let j = 0; j < convexPolygonGeom.points.length; j++) {
@@ -400,6 +411,14 @@ class EditorWorkspace {
             thumbnailCtx.clearRect(0, 0, thumbnail.width, thumbnail.height);
 
             object.fixtures.forEach(function(fixture) {
+                if (fixture.circle !== null) {
+                    thumbnailCtx.save();
+                    thumbnailCtx.arc(fixture.circle.x, fixture.circle.y, fixture.circle.radius, 0, 2 * Math.PI, false);
+                    thumbnailCtx.fillStyle = '#0000ff';
+                    thumbnailCtx.fill();
+                    thumbnailCtx.restore();
+                }
+
                 if (fixture.vertices !== null) {
                     let vertexPairs = PolyDecompUtilties.convertVerticesToArrayPairs(fixture.vertices);
                     
@@ -689,7 +708,7 @@ class EditorWorkspace {
                     let vertices1d = this.convertVertexVectorsTo1DArray(fixture.vertices);
                     
                     let poly = new Phaser.Geom.Polygon(vertices1d);
-                    this.fixtureOverlayGraphics.lineStyle(2 / this.scene.cameras.main.zoom, 0x000000);
+                    this.fixtureOverlayGraphics.lineStyle(2 * (1 / this.scene.cameras.main.zoom), 0x000000);
                     this.fixtureOverlayGraphics.beginPath();
                     for (let i = 0; i < poly.points.length; i++) {
                         let createVertexArgs = {
@@ -954,61 +973,124 @@ class Editor {
     }
 }
 
-class MenuBar extends nw.Menu {
+class EditorMenuBarMenu {
     constructor() {
-        super({ type: 'menubar' });
+        this.menuItems = [];
+    }
+
+    append(menuItem) {
+        this.menuItems.push(menuItem);
+    }
+}
+
+class EditorMenuBarItem {
+    constructor(args) {
+        this.label = args.label;
+        this.click = args.click;
+        this.type = args.type;
+        this.submenu = args.submenu;
+    }
+}
+
+class MenuBar {
+    constructor() {
+        this.menuItems = [];
     }
 
     setup(editor) {
-        this.submenuFile = new nw.Menu();
-        this.submenuFile.append(new nw.MenuItem({
+        this.submenuFile = new EditorMenuBarMenu();
+        this.submenuFile.append(new EditorMenuBarItem({
             label: 'New Workspace',
             click: editor.menuBar.onClick.file.newWorkspace
         }));
-        this.submenuFile.append(new nw.MenuItem({
+        this.submenuFile.append(new EditorMenuBarItem({
             label: 'Open Workspace',
             click: editor.menuBar.onClick.file.openWorkspace
         }));
-        this.submenuFile.append(new nw.MenuItem({ type: 'separator' }));
-        this.submenuFile.append(new nw.MenuItem({
+        this.submenuFile.append(new EditorMenuBarItem({ type: 'separator' }));
+        this.submenuFile.append(new EditorMenuBarItem({
             label: 'Save Workspace',
             click: editor.menuBar.onClick.file.saveWorkspace
         }));
-        this.submenuFile.append(new nw.MenuItem({ type: 'separator' }));
-        this.submenuFile.append(new nw.MenuItem({
+        this.submenuFile.append(new EditorMenuBarItem({ type: 'separator' }));
+        this.submenuFile.append(new EditorMenuBarItem({
             label: 'Export Objects',
             click: editor.menuBar.onClick.file.exportObjects
         }));
-        this.submenuFile.append(new nw.MenuItem({ type: 'separator' }));
-        this.submenuFile.append(new nw.MenuItem({
+        this.submenuFile.append(new EditorMenuBarItem({ type: 'separator' }));
+        this.submenuFile.append(new EditorMenuBarItem({
             label: 'Exit',
             click: editor.menuBar.onClick.file.exit
         }));
 
 
-        this.submenuView = new nw.Menu();
-        this.submenuView.append(new nw.MenuItem({
+        this.submenuView = new EditorMenuBarMenu();
+        this.submenuView.append(new EditorMenuBarItem({
             label: 'Recenter View',
             click: editor.menuBar.onClick.view.recenterView
         }));
-        this.submenuView.append(new nw.MenuItem({
+        this.submenuView.append(new EditorMenuBarItem({
             label: 'Reset Zoom',
             click: editor.menuBar.onClick.view.resetZoom
         }));
-        this.submenuView.append(new nw.MenuItem({
+        this.submenuView.append(new EditorMenuBarItem({
             label: 'Toggle Poly Decomposition Overlay',
             click: editor.menuBar.onClick.view.togglePolyDecompOverlay
         }));
 
 
 
-        this.submenuHelp = new nw.Menu();
-        this.submenuHelp.append(new nw.MenuItem({
+        this.submenuThemes = new EditorMenuBarMenu();
+        let themesDir = 'styles/themes/';
+        let themeDirs = fs.readdirSync(themesDir).filter(function(file) {
+            return fs.statSync(themesDir + file).isDirectory();
+        });
+
+        console.log('THEME DIRS: ', themeDirs);
+
+
+        for (let i = 0; i < themeDirs.length; i++) {
+            let themeDir = themeDirs[i];
+
+            fs.readFile(themesDir + themeDir + '/styles.css', 'utf8', (err, data) => {
+                if (err) {
+                    console.log(err);
+                }
+
+                let headerComment = data.match(/\/\*[\s\S]*\*\//gm)[0];
+                console.log('headerComment', headerComment);
+                let headerCommentArray = headerComment.split(/\r?\n/);
+
+                for (let j = 0; j < headerCommentArray.length; j++) {
+                    headerCommentArray[j] = headerCommentArray[j].replace('*', '');
+                    headerCommentArray[j] = headerCommentArray[j].replace('/', '');
+                    headerCommentArray[j] = headerCommentArray[j].replace("\\", '');
+                    headerCommentArray[j] = headerCommentArray[j].trim();
+
+                    if (headerCommentArray[j] === '') {
+                        headerCommentArray.splice(j, 1);
+                        j--;
+                    }
+
+                    
+                }
+
+
+                console.log('HEADER COMMENT: ', headerCommentArray);
+
+                console.log('theme data', data);
+            });
+        }
+
+
+
+        this.submenuHelp = new EditorMenuBarMenu();
+        this.submenuHelp.append(new EditorMenuBarItem({
             label: 'About Physics Shaper',
             click: editor.menuBar.onClick.help.aboutPhysicsShaper
         }));
 
-        this.submenuHelp.append(new nw.MenuItem({
+        this.submenuHelp.append(new EditorMenuBarItem({
             label: 'Find Us on GitHub',
             icon: 'assets/imgIconGitHubMark.png',
             click: editor.menuBar.onClick.help.findUsOnGithub
@@ -1016,22 +1098,114 @@ class MenuBar extends nw.Menu {
 
         
         
-        this.append(new nw.MenuItem({
+        this.append(new EditorMenuBarItem({
             label: 'File',
             submenu: this.submenuFile
         }));
 
-        this.append(new nw.MenuItem({
+        this.append(new EditorMenuBarItem({
             label: 'View',
             submenu: this.submenuView
         }));
 
-        this.append(new nw.MenuItem({
+        this.append(new EditorMenuBarItem({
+            label: 'Themes',
+            submenu: this.submenuThemes
+        }));
+
+        this.append(new EditorMenuBarItem({
             label: 'Help',
             submenu: this.submenuHelp
         }));
 
-        win.menu = this;
+
+        let menuBar = document.getElementsByClassName('menuBar')[0];
+
+        this.menuItems.forEach(function(menuItem) {
+            let btnTrigger = document.createElement('div');
+            let btnTriggerSpan = document.createElement('span');
+            btnTriggerSpan.setAttribute('class', 'btn-menuBar-menu');
+            btnTriggerSpan.innerHTML = menuItem.label;
+            if (menuItem.click !== undefined) {
+                btnTrigger.addEventListener('click', menuItem.click);
+            }
+            btnTrigger.appendChild(btnTriggerSpan);
+
+            let list = null;
+
+            if (menuItem.submenu !== undefined) {
+                list = document.createElement('ul');
+                list.setAttribute('class', 'menuBar-dropdown');
+
+                if (menuItem.click === undefined) {
+                    btnTrigger.addEventListener('click', function() {
+                        let menuBarGroups = menuBar.childNodes;
+
+                        for (let i = 0; i < menuBarGroups.length; i++) {
+                            let closeDropdownMenuItem = menuBarGroups[i];
+
+                            let closeDropdownMenuItemDropdown = closeDropdownMenuItem.childNodes[1];
+
+                            closeDropdownMenuItemDropdown.removeAttribute('data-open');
+                        }
+
+                        if (list.getAttribute('data-open')) {
+                            list.removeAttribute('data-open');
+                        }
+                        else {
+                            list.setAttribute('data-open', true);
+                        }
+                    }.bind(this));
+                }
+
+                for (let i = 0; i < menuItem.submenu.menuItems.length; i++) {
+                    let submenuMenuItem = menuItem.submenu.menuItems[i];
+
+                    if (submenuMenuItem.type === undefined) {
+                        let li = document.createElement('li');
+                    
+                        let a = document.createElement('a');
+                        a.setAttribute('class', 'btn-submenu-item');
+                        a.innerHTML = submenuMenuItem.label;
+    
+                        li.appendChild(a);
+                        
+                        if (submenuMenuItem.click !== undefined) {
+                            li.addEventListener('click', submenuMenuItem.click);
+                        }
+    
+                        list.appendChild(li);
+                    }
+                    else {
+                        switch (submenuMenuItem.type) {
+                            case 'separator': {
+                                let li = document.createElement('li');
+
+                                let hr = document.createElement('hr');
+
+                                li.appendChild(hr);
+
+                                list.appendChild(li);
+                                break;
+                            }
+                        }
+                    }
+
+                }
+            }
+
+            let menuBarDropdownGroup = document.createElement('div');
+            menuBarDropdownGroup.setAttribute('class', 'menuBar-dropdown-group');
+
+            menuBarDropdownGroup.appendChild(btnTrigger);
+            menuBarDropdownGroup.appendChild(list);
+
+            menuBar.appendChild(menuBarDropdownGroup);
+        }.bind(this));
+    }
+
+    append(menuItem) {
+        this.menuItems.push(menuItem);
     }
 }
 
@@ -1040,6 +1214,61 @@ window.addEventListener('DOMContentLoaded', function() {
     editor = new Editor();
     let menuBar = new MenuBar();
     menuBar.setup(editor);
+
+    document.addEventListener('click', function(evt) {
+        // if the click wasn't on a menu item, close any open menu dropdowns
+        let menuDropdowns = document.querySelectorAll('.menuBar .menuBar-dropdown[data-open="true"]');
+        let clickedOnMenuDropdown = false;
+        for (let i = 0; i < menuDropdowns.length; i++) {
+            let menuDropdown = menuDropdowns[i];
+
+            let btnTrigger = menuDropdown.parentNode.childNodes[0].childNodes[0];
+
+            if (Object.is(menuDropdown, evt.target) || Object.is(btnTrigger, evt.target)) {
+                clickedOnMenuDropdown = true;
+            }
+        }
+
+        if (!clickedOnMenuDropdown) {
+            for (let i = 0; i < menuDropdowns.length; i++) {
+                let menuDropdown = menuDropdowns[i];
+
+                menuDropdown.removeAttribute('data-open');
+            }
+        }
+    });
+
+    let isMaximized = false;
+    let isMinimized = false;
+
+    win.on('restore', () => {
+        isMinimized = false;
+        isMaximized = false;
+    });
+    win.on('minimize', () => isMinimized = false);
+    win.on('maximize', () => isMaximized = true);
+
+    document.getElementsByClassName('btn-minimize')[0].addEventListener('click', function() {
+        if (isMaximized) {
+            win.restore();
+        }
+        else {
+            win.minimize();
+        }
+    });
+
+    document.getElementsByClassName('btn-maximize')[0].addEventListener('click', function() {
+        if (isMinimized) {
+            win.restore();
+        }
+        else {
+            win.maximize();
+        }
+    });
+
+    document.getElementsByClassName('btn-close')[0].addEventListener('click', function() {
+        nw.App.closeAllWindows();
+    });
 
     document.getElementById('btn-new-object').addEventListener('click', function() {
         let editorWorkspace = editor.game.scene.scenes[1].editorWorkspace;

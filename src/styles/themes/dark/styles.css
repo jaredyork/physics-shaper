@@ -1,0 +1,167 @@
+/*
+* Theme Name: Dark,
+* Version: 0.1
+*/
+
+body {
+    background-image: url(assets/imgBgTransparency.png);
+}
+
+.titleBar {
+    background: #1e1e1e;
+}
+
+.titleBar-title {
+    color: #ffffff;
+}
+
+.titleBar-controls .btn-minimize,
+.titleBar-controls .btn-maximize,
+.titleBar-controls .btn-close {
+    color: #ffffff;
+}
+
+.titleBar-controls .btn-minimize:hover,
+.titleBar-controls .btn-maximize:hover,
+.titleBar-controls .btn-close:hover {
+    background: #3c3c3c;
+}
+
+.menuBar {
+    background: #1e1e1e;
+}
+
+.menuBar-dropdown {
+    background: #1e1e1e;
+}
+
+.btn-menuBar-menu {
+    color: #b1b1b1;
+}
+
+.btn-menuBar-menu:hover {
+    color: #ffffff;
+}
+
+.btn-submenu-item {
+    color: #b1b1b1;
+}
+
+.btn-submenu-item:hover {
+    color: #ffffff;
+    background: #2d2d2d;
+}
+
+.menuBar-dropdown hr {
+    border: 1px solid #3c3c3c;
+}
+
+.btn-primary, .btn-secondary {
+    border: 2px solid #1e1e1e;
+}
+
+.btn-primary:hover, .btn-secondary:hover {
+    border: 2px solid #c9c9c9;
+}
+
+.btn-primary:active, .btn-secondary:active {
+    background: #1e1e1e;
+    border: 2px solid #a9a9a9;
+}
+
+.btn-primary {
+    background: #ffffff;
+}
+
+.object-selection-ribbon {
+    background: #2d2d2d;
+    border-top: 1px solid #1e1e1e;
+    border-bottom: 1px solid #1e1e1e;
+}
+
+.thumb-object {
+    border: 1px solid #1e1e1e;
+}
+
+.thumb-object:last-child {
+    border-right-width: 2px;
+}
+
+.thumb-object.selected {
+    background: #1e1e1e;
+}
+
+.sidebar-left, .sidebar-right {
+    background: #2d2d2d;
+}
+
+.sidebar-left {
+    border-right: 1px solid #1e1e1e;
+}
+
+.win-btn-close {
+    color: #b9b9b9;
+    background: red;
+}
+
+.sidebar-fields-heading {
+    color: #b1b1b1;
+    background: #3c3c3c;
+}
+
+.container-fields-padding label {
+    color: #b1b1b1;
+}
+
+.container-fields-padding input[type="text"] {
+    color: #b1b1b1;
+    background: #1e1e1e;
+    border: none;
+}
+
+.container-fields-padding input[type="checkbox"] {
+    background: #1e1e1e;
+}
+
+::-webkit-scrollbar              { background: #1e1e1e; }
+::-webkit-scrollbar-button       { background: #1e1e1e; }
+::-webkit-scrollbar-track        { background: #1e1e1e; }
+::-webkit-scrollbar-track-piece  { background: #1e1e1e; }
+::-webkit-scrollbar-thumb        { background: #3c3c3c; }
+::-webkit-scrollbar-corner       { background: #1e1e1e; }
+::-webkit-resizer                { background: #1e1e1e; }
+
+.win-container {
+    background: #3c3c3c;
+    border: 1px solid #1e1e1e;
+}
+
+.win-title-bar-flex {
+    background: #1e1e1e;
+}
+
+.win-title {
+    color: #ffffff;
+    text-align: center;
+    font-weight: bold;
+    line-height: 1.7em;
+}
+
+.win-container .win-heading {
+    color: #ffffff;
+}
+
+.win-container p {
+    color: #b1b1b1;
+}
+
+.win-container .btn-primary {
+    color: #ffffff;
+    background: #1e1e1e;
+    border: 1px solid transparent;
+}
+
+.win-container .btn-primary:hover {
+    background: #2d2d2d;
+    border: 1px solid #ffffff;
+}

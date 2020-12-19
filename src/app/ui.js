@@ -100,28 +100,6 @@ class EditorWindowManager {
         this.lastWindowInFocus = null;
         this.windowInFocus = null;
         this.windowDepthCounter = 0;
-        this.defaultStyles = {
-            titleBar: {
-                backgroundColor: '#333333'
-            },
-            titleBarPadding: {
-                paddingTop: 4,
-                paddingRight: 4,
-                paddingBottom: 6,
-                paddingLeft: 4,
-            },
-            title: {
-                color: '#e9e9e9',
-                textAlign: 'center',
-                fontWeight: 'bold'
-            },
-            container: {
-                backgroundColor: '#ffffff',
-                borderColor: '#333333',
-                borderStyle: 'solid',
-                borderWidth: 2
-            }
-        };
 
         this.inner = {
             top: 32
@@ -154,103 +132,12 @@ class EditorWindowManager {
 
         editorWindow.container.style.zIndex = this.windowDepthCounter;
 
-        if (editorWindow.args.titleBar.backgroundColor === undefined) {
-            editorWindow.titleBar.style.backgroundColor = this.defaultStyles.titleBar.backgroundColor;
-        }
-
-
-        if (editorWindow.args.titleBarPadding.paddingTop === undefined) {
-            editorWindow.titleBarPadding.style.paddingTop = this.defaultStyles.titleBarPadding.paddingTop + 'px';
-        }
-        else {
-            editorWindow.titleBarPadding.style.paddingTop = editorWindow.args.titleBarPadding.paddingTop + 'px';
-        }
-        if (editorWindow.args.titleBarPadding.paddingRight === undefined) {
-            editorWindow.titleBarPadding.style.paddingRight = this.defaultStyles.titleBarPadding.paddingRight + 'px';
-        }
-        else {
-            editorWindow.titleBarPadding.style.paddingRight = editorWindow.args.titleBarPadding.paddingRight + 'px';
-        }
-        if (editorWindow.args.titleBarPadding.paddingBottom === undefined) {
-            editorWindow.titleBarPadding.style.paddingBottom = this.defaultStyles.titleBarPadding.paddingBottom + 'px';
-        }
-        else {
-            editorWindow.titleBarPadding.style.paddingBottom = editorWindow.args.titleBarPadding.paddingBottom + 'px';
-        }
-        if (editorWindow.args.titleBarPadding.paddingLeft === undefined) {
-            editorWindow.titleBarPadding.style.paddingLeft = this.defaultStyles.titleBarPadding.paddingLeft + 'px';
-        }
-        else {
-            editorWindow.titleBarPadding.style.paddingLeft = editorWindow.args.titleBarPadding.paddingLeft + 'px';
-        }
-
-        if (editorWindow.args.titleBarPadding.padding === undefined) {
-            editorWindow.titleBarPadding.style.paddingTop = this.defaultStyles.titleBarPadding.paddingTop + 'px';
-            editorWindow.titleBarPadding.style.paddingRight = this.defaultStyles.titleBarPadding.paddingRight + 'px';
-            editorWindow.titleBarPadding.style.paddingBottom = this.defaultStyles.titleBarPadding.paddingBottom + 'px';
-            editorWindow.titleBarPadding.style.paddingLeft = this.defaultStyles.titleBarPadding.paddingLeft + 'px';
-        }
-        else {
-            editorWindow.titleBarPadding.style.paddingTop = editorWindow.args.titleBarPadding.padding + 'px';
-            editorWindow.titleBarPadding.style.paddingRight = editorWindow.args.titleBarPadding.padding + 'px';
-            editorWindow.titleBarPadding.style.paddingBottom = editorWindow.args.titleBarPadding.padding + 'px';
-            editorWindow.titleBarPadding.style.paddingLeft = editorWindow.args.titleBarPadding.padding + 'px';
-        }
-
-
-        if (editorWindow.args.title.color === undefined) {
-            editorWindow.title.style.color = this.defaultStyles.title.color;
-        }
-        else {
-            editorWindow.title.style.color = editorWindow.args.title.color;
-        }
-
-        if (editorWindow.args.title.textAlign === undefined) {
-            editorWindow.title.style.textAlign = this.defaultStyles.title.textAlign;
-        }
-        else {
-            editorWindow.title.style.textAlign = editorWindow.args.title.textAlign;
-        }
-
-        if (editorWindow.args.title.fontWeight === undefined) {
-            editorWindow.title.style.fontWeight = this.defaultStyles.title.fontWeight;
-        }
-        else {
-            editorWindow.title.style.fontWeight = editorWindow.args.title.fontWeight;
-        }
-
-
         editorWindow.title.innerHTML = editorWindow.args.title;
-
-        if (editorWindow.args.borderColor === undefined) {
-            editorWindow.container.style.borderColor = this.defaultStyles.container.borderColor;
-        }
-        else {
-            editorWindow.container.style.borderColor = editorWindow.args.container.borderColor;
-        }
-
-        if (editorWindow.args.borderStyle === undefined) {
-            editorWindow.container.style.borderStyle = this.defaultStyles.container.borderStyle;
-        }
-        else {
-            editorWindow.container.style.borderStyle = editorWindow.args.container.borderStyle;
-        }
-
-        if (editorWindow.args.borderWidth === undefined) {
-            editorWindow.container.style.borderWidth = this.defaultStyles.container.borderWidth + 'px';
-        }
-        else {
-            editorWindow.container.style.borderWidth = editorWindow.args.container.borderWidth + 'px';
-        }
 
         editorWindow.container.style.position = 'absolute';
 
         editorWindow.container.style.left = getRandomInt(128 - 32, 128 + 32) + 'px';
         editorWindow.container.style.top = getRandomInt(128 - 32, 128 + 32) + 'px';
-
-        if (editorWindow.args.backgroundColor === undefined) {
-            editorWindow.container.style.backgroundColor = this.defaultStyles.container.backgroundColor;
-        }
 
         if (editorWindow.args.width !== undefined) {
             editorWindow.container.style.width = editorWindow.args.width + 'px';

@@ -2,11 +2,29 @@
 <html>
     <head>
         <meta charset="utf-8">
+        <meta lang="en-us">
         <title>Physics Shaper</title>
         <link rel="stylesheet" type="text/css" href="../styles/common.css" />
+        <link rel="stylesheet" type="text/css" href="../styles/themes/dark/styles.css" />
     </head>
 
     <body>
+        <div class="titleBar">
+            <p class="titleBar-title">Physics Shaper</p>
+
+            <div class="titleBar-controls">
+                <div>
+                    <span class="btn-minimize">&#8211;</span>
+                </div>
+                <div>
+                    <span class="btn-maximize">&square;</span>
+                </div>
+                <div>
+                    <span class="btn-close">&#10006;</span>
+                </div>
+            </div>
+        </div>
+        <div class="menuBar"></div>
         <div class="object-selection-ribbon">
             <div class="object-selection-ribbon-flex">
 
@@ -16,21 +34,28 @@
             <div class="sidebar-left">
                 <div class="sidebar-left-tools">
                     <span id="btn-new-object"><img class="sidebar-tool-icon" src="../assets/imgIconNewObject.png" alt="New object" /></span>
+                    <span id="btn-new-image"><img class="sidebar-tool-icon" src="../assets/imgIconNewImage.png" alt="New image" /></span>
                     <span id="btn-add-fixture"><img class="sidebar-tool-icon" src="../assets/imgIconAddFixture.png" alt="Add fixture" /></span>
                     <span id="btn-add-circle"><img class="sidebar-tool-icon" src="../assets/imgIconAddCircle.png" alt="Add circle" /></span>
                 </div>
 
                 <div class="container-fields">
                     <div class="container-fields-padding">
-                        <div id="container-fields-object">
-                            <h3 class="sidebar-fields-heading">Object Properties</h3>
+                        <div class="container-fields-group" id="container-fields-object">
+                            <h3 class="sidebar-fields-heading">Object</h3>
                             <p class="input-form"><label for="object-label">Label</label><input id="object-label" class="txtfield" type="text" size="12" /></p>
                             <p class="input-form"><label for="object-is-static">Is Static?</label><input id="object-is-static" class="txtfield" type="checkbox" /></p>
-                            <p class="input-form"><label for="object-density">Density</label><input id="object-density" class="txtfield" size="4" /></p>
-                            <p class="input-form"><label for="object-restitution">Restitution</label><input id="object-restitution" class="txtfield" size="4" /></p>
-                            <p class="input-form"><label for="object-friction">Friction</label><input id="object-friction" class="txtfield" size="4" /></p>
-                            <p class="input-form"><label for="object-friction-air">Friction Air</label><input id="object-friction-air" class="txtfield" size="4" /></p>
-                            <p class="input-form"><label for="object-friction-static">Friction Static</label><input id="object-friction-static" class="txtfield" size="4" /></p>
+                            <p class="input-form"><label for="object-density">Density</label><input id="object-density" class="txtfield" type="text" size="4" /></p>
+                            <p class="input-form"><label for="object-restitution">Restitution</label><input id="object-restitution" class="txtfield" type="text" size="4" /></p>
+                            <p class="input-form"><label for="object-friction">Friction</label><input id="object-friction" class="txtfield" type="text" size="4" /></p>
+                            <p class="input-form"><label for="object-friction-air">Friction Air</label><input id="object-friction-air" class="txtfield" type="text" size="4" /></p>
+                            <p class="input-form"><label for="object-friction-static">Friction Static</label><input id="object-friction-static" class="txtfield" type="text" size="4" /></p>
+                        </div>
+
+                        <div class="container-fields-group" id="container-fields-fixture">
+                            <h3 class="sidebar-fields-heading">Fixture</h3>
+                            <p class="input-form"><label for="fixture-label">Label</label><input id="fixture-label" class="txtfield" type="text" size="12" /></p>
+                            <p class="input-form"><label for="fixture-is-sensor">Is Sensor</label><input id="fixture-is-sensor" class="txtfield" type="checkbox" /></p>
                         </div>
                     </div>
                 </div>

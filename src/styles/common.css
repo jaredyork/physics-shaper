@@ -58,9 +58,65 @@ table {
 }
 
 body {
-    background-image: url(../assets/imgBgTransparency.png);
     overflow: hidden;
     font-family: helvetica, sans-serif;
+}
+
+.titleBar {
+    -webkit-app-region: drag;
+}
+
+.titleBar-title {
+    text-align: center;
+    line-height: 1.7em;
+    font-weight: bold;
+}
+
+.titleBar-controls {
+    display: flex;
+    flex-direction: row;
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 4px;
+}
+
+.titleBar-controls .btn-minimize,
+.titleBar-controls .btn-maximize,
+.titleBar-controls .btn-close {
+    display: block;
+    width: 24px;
+    height: 24px;
+    font-size: 1.25em;
+    line-height: 24px;
+    border-radius: 12px;
+    text-align: center;
+    cursor: pointer;
+    -webkit-app-region: no-drag;
+}
+
+.menuBar {
+    display: flex;
+    flex-direction: row;
+}
+
+.menuBar-dropdown {
+    display: none;
+}
+
+.menuBar-dropdown[data-open="true"] {
+    display: block;
+    position: absolute;
+}
+
+.btn-menuBar-menu {
+    display: block;
+    padding: 8px 12px 8px 12px;
+}
+
+.btn-submenu-item {
+    display: block;
+    padding: 8px 12px 8px 12px;
 }
 
 .btn-primary, .btn-secondary {
@@ -68,16 +124,6 @@ body {
     margin-top: 8px;
     margin-bottom: 8px;
     padding: 12px 24px 12px 24px;
-    border: 2px solid #e9e9e9;
-}
-
-.btn-primary:hover, .btn-secondary:hover {
-    border: 2px solid #c9c9c9;
-}
-
-.btn-primary:active, .btn-secondary:active {
-    background: #e9e9e9;
-    border: 2px solid #a9a9a9;
 }
 
 .btn-primary.centered, .btn-secondary.centered {
@@ -87,29 +133,14 @@ body {
     transform: translateX(-50%);
 }
 
-.btn-primary {
-    background: #ffffff;
-}
-
 .object-selection-ribbon {
     height: 64px;
-    background: #ffffff;
-    border-top: 1px solid #b9b9b9;
-    border-bottom: 1px solid #b9b9b9;
 }
 
 .object-selection-ribbon-flex {
     display: flex;
     flex-direction: row;
     overflow-x: scroll;
-}
-
-.thumb-object {
-    border: 1px solid #888888;
-}
-
-.thumb-object.selected {
-    background: #e9e9e9;
 }
 
 .main-view-flex {
@@ -119,19 +150,22 @@ body {
 
 .sidebar-left, .sidebar-right {
     height: 100vh;
-    background: #ffffff;
 }
 
 .sidebar-left {
     width: 192px;
-    border-right: 1px solid #b9b9b9;
 }
 
 .container-fields-padding {
     padding: 4px;
 }
 
+.container-fields-group {
+    margin-bottom: 32px;
+}
+
 .sidebar-fields-heading {
+    line-height: 1.7em;
     font-weight: bold;
 }
 
@@ -148,8 +182,8 @@ body {
 }
 
 .sidebar-tool-icon {
-    width: 48px;
-    height: 48px;
+    width: 36px;
+    height: 36px;
 }
 
 .win-title-bar {
@@ -180,8 +214,6 @@ body {
 }
 
 .win-btn-close {
-    color: #ffffff;
-    background: red;
     width: 24px;
     height: 24px;
     text-align: center;

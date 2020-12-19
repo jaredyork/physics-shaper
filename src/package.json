@@ -5,7 +5,9 @@
     "window": {
         "min_width": 400,
         "min_height": 400,
-        "icon": "assets/icon.png"
+        "icon": "assets/icon.png",
+        "frame": false,
+        "toolbar": false
     },
     "dependencies": {
         "rfdc": "^1.1.4"
