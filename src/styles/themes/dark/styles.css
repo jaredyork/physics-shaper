@@ -99,6 +99,10 @@ body {
     border-right: 1px solid #1e1e1e;
 }
 
+.sidebar-tool-icon:hover {
+    background: #3c3c3c;
+}
+
 .win-btn-close {
     color: #b9b9b9;
     background: red;
