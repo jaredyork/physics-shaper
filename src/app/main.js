@@ -5,6 +5,7 @@ var fs = require('fs');
 class EditorObject {
     constructor() {
         this.imageKey = '';
+        this.imageBase64 = '';
         this.image = null;
         this.type = 'fromPhysicsShaper';
         this.label = 'untitled';
@@ -190,13 +191,18 @@ class EditorWorkspace {
         this.loadObject(this.openObjectId);
     }
 
-    loadNewImage(key) {
+    loadNewImage(key, base64) {
+        console.log('attempting to load new texture to key: ', key);
+        editor.game.scene.scenes[1].textures.addBase64(key, base64);
+
         this.clearWorkspace();
 
         this.createObject();
         this.openObjectId = this.objects.length;
+        console.log('attempting to load new image to new object (' + this.openObjectId + ')');
         let object = this.getObject(this.openObjectId);
         object.imageKey = key;
+        object.imageBase64 = base64;
 
         this.loadObject(object.id);
     }
@@ -253,17 +259,16 @@ class EditorWorkspace {
                 let thumbnailCtx = thumbnail.getContext('2d');
                 thumbnailCtx.clearRect(0, 0, thumbnail.width, thumbnail.height);
 
-                if (object.imageKey !== '') {
-                    let tempImage = this.scene.add.image(0, 0, object.imageKey);
-                    console.log('TEMP IMAGE: ', tempImage);
-                    //thumbnailCtx.fillImage(0, 0, tempImage);
-
-                    tempImage.destroy();
+                if (object.imageBase64 !== '') {
+                    let imageBase64 = new Image();
+                    imageBase64.src = object.imageBase64;
+                    thumbnailCtx.drawImage(imageBase64, 0, 0);
                 }
 
                 object.fixtures.forEach(function(fixture) {
                     if (fixture.circle !== null) {
                         thumbnailCtx.save();
+                        thumbnailCtx.globalAlpha = 0.5;
                         thumbnailCtx.arc(fixture.circle.x, fixture.circle.y, fixture.circle.radius, 0, 2 * Math.PI, false);
                         thumbnailCtx.fillStyle = '#0000ff';
                         thumbnailCtx.fill();
@@ -273,6 +278,7 @@ class EditorWorkspace {
                     if (fixture.vertices !== null) {
                         let vertexPairs = PolyDecompUtilties.convertVerticesToArrayPairs(fixture.vertices);
 
+                        let isPolySimple = true;
                         if (decomp.isSimple(vertexPairs)) {
                             decomp.makeCCW(vertexPairs);
                         }
@@ -282,7 +288,13 @@ class EditorWorkspace {
                         let poly = new Phaser.Geom.Polygon(vertices1D);
 
                         thumbnailCtx.save();
-                        thumbnailCtx.fillStyle = '#0000ff';
+                        if (isPolySimple) {
+                            thumbnailCtx.fillStyle = '#0000ff';
+                        }
+                        else {
+                            thumbnailCtx.fillStyle = '#ff0000';
+                        }
+                        thumbnailCtx.globalAlpha = 0.5;
                         thumbnailCtx.beginPath();
                         for (let i = 0; i < poly.points.length; i++) {
                             if (i === 0) {
@@ -346,11 +358,9 @@ class EditorWorkspace {
     renderObjectWithOverlays(object) {
         this.flushGraphics();
 
-        console.log('attempting loaded image', object.imageKey);
         if (object.imageKey !== '') {
             this.imageOverlay = this.scene.add.image(0, 0, object.imageKey).setOrigin(0);
             this.imageOverlay.setDepth(-1);
-            console.log('loadedImage' + object.id, this.imageOverlay);
         }
 
         object.fixtures.forEach(function(fixture) {
@@ -483,13 +493,16 @@ class EditorWorkspace {
             let thumbnailCtx = thumbnail.getContext('2d');
             thumbnailCtx.clearRect(0, 0, thumbnail.width, thumbnail.height);
 
-            if (object.imageKey !== '') {
-                let tempImage = this.scene.add.image(0, 0, object.imageKey);
+            if (object.imageBase64 !== '') {
+                let imageBase64 = new Image();
+                imageBase64.src = object.imageBase64;
+                thumbnailCtx.drawImage(imageBase64, 0, 0);
             }
 
             object.fixtures.forEach(function(fixture) {
                 if (fixture.circle !== null) {
                     thumbnailCtx.save();
+                    thumbnailCtx.globalAlpha = 0.5;
                     thumbnailCtx.arc(fixture.circle.x, fixture.circle.y, fixture.circle.radius, 0, 2 * Math.PI, false);
                     thumbnailCtx.fillStyle = '#0000ff';
                     thumbnailCtx.fill();
@@ -499,8 +512,12 @@ class EditorWorkspace {
                 if (fixture.vertices !== null) {
                     let vertexPairs = PolyDecompUtilties.convertVerticesToArrayPairs(fixture.vertices);
                     
+                    let isPolySimple = true;
                     if (decomp.isSimple(vertexPairs)) {
                         decomp.makeCCW(vertexPairs);
+                    }
+                    else {
+                        isPolySimple = false;
                     }
 
                     let vertices1D = PolyDecompUtilties.convertArrayPairsTo1DArray(vertexPairs);
@@ -508,7 +525,13 @@ class EditorWorkspace {
                     let poly = new Phaser.Geom.Polygon(vertices1D);
 
                     thumbnailCtx.save();
-                    thumbnailCtx.fillStyle = '#0000ff';
+                    if (isPolySimple) {
+                        thumbnailCtx.fillStyle = '#0000ff';
+                    }
+                    else {
+                        thumbnailCtx.fillStyle = '#ff0000';
+                    }
+                    thumbnailCtx.globalAlpha = 0.5;
                     thumbnailCtx.beginPath();
                     for (let i = 0; i < poly.points.length; i++) {
                         if (i === 0) {
@@ -901,7 +924,6 @@ class EditorScene extends Phaser.Scene {
         this.editorWorkspace.resetWorkspace();
 
         this.textures.on("addtexture", function(key) {
-            this.editorWorkspace.loadNewImage(key);
         }, this);
 
         this.cameraDragging = false;
@@ -1315,26 +1337,28 @@ class MenuBar {
 let editor = null;
 
 function handleFileSelect(evt) {
-    var file = evt.target.files[0];
-  
-    if (file !== undefined) {
-        console.log("handleFileSelect called");
+    for (let i = 0; i < evt.target.files.length; i++) {
+        var file = evt.target.files[i];
+    
+        if (file !== undefined) {
+            console.log("handleFileSelect called");
 
-        if (!file.type.match('image.*')) {
-        console.log("File uploaded is not an image!  Aborted.");
-        }
-
-        var reader = new FileReader();
-
-        reader.onload = (function(theFile) {
-            return function(e) {
-                var image = e.target.result;
-                
-                editor.game.scene.scenes[1].textures.addBase64("loadedImage" + (editor.game.scene.scenes[1].editorWorkspace.objectIdIterator + 1), image);
+            if (!file.type.match('image.*')) {
+            console.log("File uploaded is not an image!  Aborted.");
             }
-        })(file);
 
-        reader.readAsDataURL(file);
+            var reader = new FileReader();
+
+            reader.onload = (function(theFile) {
+                return function(e) {
+                    var image = e.target.result;
+                    
+                    editor.game.scene.scenes[1].editorWorkspace.loadNewImage("loadedImage" + (editor.game.scene.scenes[1].editorWorkspace.objectIdIterator), image);
+                }
+            })(file);
+
+            reader.readAsDataURL(file);
+        }
     }
 }
 
@@ -1673,7 +1697,6 @@ window.addEventListener('DOMContentLoaded', function() {
                 case 'object-friction-air': { object.frictionAir = thisField.value; break; }
                 case 'object-friction-static': { object.frictionStatic = thisField.value; break; }
             }
-
         });
     }
 });
