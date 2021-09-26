@@ -1,6 +1,76 @@
 var win = nw.Window.get();
 var gui = require('nw.gui');
 var fs = require('fs');
+const { exit } = require('process');
+const { exception } = require('console');
+
+
+
+const clone = require('rfdc')({ proto: true, circles: true });
+
+console.log('functions');
+
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min) + min); //The maximum is exclusive and the minimum is inclusive
+}
+
+function arrayMove(arr, old_index, new_index) {
+    while (old_index < 0) {
+        old_index += arr.length;
+    }
+    while (new_index < 0) {
+        new_index += arr.length;
+    }
+    if (new_index >= arr.length) {
+        var k = new_index - arr.length + 1;
+        while (k--) {
+            arr.push(undefined);
+        }
+    }
+    arr.splice(new_index, 0, arr.splice(old_index, 1)[0]);
+    return arr; // for testing purposes
+};
+
+class PolyDecompUtilties {
+    static convert1DArrayToArrayPairs(array1d) {
+        let arrayPairs = [];
+
+        for (let i = 0; i < array1d.length; i += 2) {
+            let x = array1d[i];
+            let y = array1d[i + 1];
+            arrayPairs.push([x, y]);
+        }
+
+        return arrayPairs;
+    }
+
+    static convertArrayPairsTo1DArray(arrayPairs) {
+        let array1d = [];
+
+        for (let i = 0; i < arrayPairs.length; i++) {
+            let arrayPair = arrayPairs[i];
+
+            array1d.push(arrayPair[0]);
+            array1d.push(arrayPair[1]);
+        }
+
+        return array1d;
+    }
+
+    static convertVerticesToArrayPairs(vertices) {
+        let arrayPairs = [];
+
+        for (let i = 0; i < vertices.length; i++) {
+            arrayPairs.push([vertices[i].x, vertices[i].y]);
+        }
+
+        return arrayPairs;
+    }
+}
+
+
 
 class EditorObject {
     constructor() {
@@ -86,9 +156,11 @@ class EditorWorkspace {
     }
 
     clearWorkspace() {
-        this.openObjectId = 0;
-
+        this.objectIdIterator = 0;
+        this.fixtureIdIterator = 0;
+        this.vertexIdIterator = 0;
         this.objects.length = 0;
+        this.openObjectId = 0;
 
         let thumbnails = document.getElementsByClassName('thumb-object');
         for (let i = 0; i < thumbnails.length; i++) {
@@ -128,7 +200,10 @@ class EditorWorkspace {
     }
 
     openWorkspace(data) {
+        console.log('');
+        console.log('***OPEN WORKSPACE CALLED');
         this.clearWorkspace();
+        console.log('clearWorkspace called');
 
         this.objectIdIterator = data.objectIdIterator;
         this.fixtureIdIterator = data.fixtureIdIterator;
@@ -136,17 +211,28 @@ class EditorWorkspace {
         this.openObjectId = data.openObjectId;
 
         // Copy objects from data to the array in this class instance
+        console.log('OBJECTS FOUND: ', data.objects);
         for (let i = 0; i < data.objects.length; i++) {
             let objectJson = data.objects[i];
 
             let object = new EditorObject();
 
             for (const [key, value] of Object.entries(objectJson)) {
+                console.log('copying object prop ', key, value);
                 object[key] = value;
             }
 
+            if (object.imageKey !== undefined && object.imageBase64 !== undefined) {
+                console.log('ATTEMPTING TO LOAD NEW IMAGE', object.imageKey, object.imageBase64);
+                this.scene.textures.addBase64(object.imageKey, object.imageBase64);
+            }
+
+            console.log('PUSHING OBJECT', object);
+
             this.objects.push(object);
         }
+        console.log('LOADED OBJECTS', this.objects);
+
 
         // Re-link object references
         for (var i = 0; i < this.objects.length; i++) {
@@ -163,11 +249,12 @@ class EditorWorkspace {
                     vertices: fixtureJson.vertices
                 });
 
-                object.fixtures[j] = fixture;
+                object.fixtures.push(fixture);
 
-                if (fixture.vertices !== null) {
-                    for (var k = 0; k < fixture.vertices.length; k++) {
-                        var vertexJson = fixture.vertices[k];
+                if (fixtureJson.vertices !== null) {
+                    console.log('fixtureJson', fixtureJson);
+                    for (var k = 0; k < fixtureJson.vertices.length; k++) {
+                        var vertexJson = fixtureJson.vertices[k];
 
                         var vertex = new EditorVertex({
                             fixture: fixture,
@@ -176,19 +263,21 @@ class EditorWorkspace {
                             y: vertexJson.y
                         });
 
-                        fixture.vertices[k] = vertex;
+                        fixture.vertices.push(vertex);
                     }
                 }
             }
         }
 
-        console.log('LOADED OBJECTS', this.objects);
 
 
         this.regenerateThumbnails();
 
-        this.openObjectId = 0;
+        this.openObjectId = this.objects[this.objects.length - 1].id;
         this.loadObject(this.openObjectId);
+
+        console.log('***FINISHED OPEN WORKSPACE');
+        console.log('');
     }
 
     loadNewImage(key, base64) {
@@ -347,6 +436,7 @@ class EditorWorkspace {
     }
 
     getObject(id) {
+        //console.log( 'OBJECTS', this.objects );
         for (let i = 0; i < this.objects.length; i++) {
             if (this.objects[i].id === id) {
                 return this.objects[i];
@@ -357,6 +447,8 @@ class EditorWorkspace {
 
     renderObjectWithOverlays(object) {
         this.flushGraphics();
+
+        //console.log('RENDER OBJECT IMAGE KEY: ', object.imageKey);
 
         if (object.imageKey !== '') {
             this.imageOverlay = this.scene.add.image(0, 0, object.imageKey).setOrigin(0);
@@ -770,22 +862,26 @@ class EditorWorkspace {
     }
 
     update() {
+        //console.log('START UPDATE');
         this.amountVerticesHoveredOver = 0;
         this.isHoveringOverVertex = false;
 
         if (!this.scene.isMouseDown) {
             if (this.openObjectId !== null) {
+                //console.log('(UDPATE) OPEN OBJECT ID: ', this.openObjectId);
                 let object = this.getObject(this.openObjectId);
     
-                object.fixtures.forEach(function(fixture) {
-                    if (fixture.vertices !== null) {
-                        for (let i = 0; i < fixture.vertices.length; i++) {
-                            let vertex = fixture.vertices[i];
+                if (object !== null) {
+                    object.fixtures.forEach(function(fixture) {
+                        if (fixture.vertices !== null) {
+                            for (let i = 0; i < fixture.vertices.length; i++) {
+                                let vertex = fixture.vertices[i];
 
-                            vertex.editor.isDragging = false;
+                                vertex.editor.isDragging = false;
+                            }
                         }
-                    }
-                });
+                    });
+                }
             }
 
             this.vertexDragging = null;
@@ -800,101 +896,108 @@ class EditorWorkspace {
         if (this.openObjectId !== null) {
             let object = this.getObject(this.openObjectId);
 
-            object.fixtures.forEach(function(fixture) {
+            if (object !== null) {
+                object.fixtures.forEach(function(fixture) {
 
-                if (fixture.vertices !== null) {
-                    fixture.vertices = this.makeVerticesCCW(fixture.vertices);
+                    if (fixture.vertices !== null) {
+                        fixture.vertices = this.makeVerticesCCW(fixture.vertices);
 
-                    let vertices1d = this.convertVertexVectorsTo1DArray(fixture.vertices);
-                    
-                    let poly = new Phaser.Geom.Polygon(vertices1d);
-                    this.fixtureOverlayGraphics.lineStyle(2 * (1 / this.scene.cameras.main.zoom), 0x000000);
-                    this.fixtureOverlayGraphics.beginPath();
-                    for (let i = 0; i < poly.points.length; i++) {
-                        let createVertexArgs = {
-                            fixture: fixture,
-                            x: this.scene.input.activePointer.worldX,
-                            y: this.scene.input.activePointer.worldY
-                        };
+                        let vertices1d = this.convertVertexVectorsTo1DArray(fixture.vertices);
+                        
+                        let poly = new Phaser.Geom.Polygon(vertices1d);
+                        this.fixtureOverlayGraphics.lineStyle(2 * (1 / this.scene.cameras.main.zoom), 0x000000);
+                        this.fixtureOverlayGraphics.beginPath();
+                        for (let i = 0; i < poly.points.length; i++) {
+                            let createVertexArgs = {
+                                fixture: fixture,
+                                x: this.scene.input.activePointer.worldX,
+                                y: this.scene.input.activePointer.worldY
+                            };
 
-                        if (i - 1 >= 0) {
-                            createVertexArgs.insertAt = i;
-                        }
-
-                        if (i >= 0) {
-                            let line = null;
-
-                            let lastVertex = poly.points[i - 1];
-
-                            if (i > 0) {
-                                line = new Phaser.Geom.Line(poly.points[i - 1].x, poly.points[i - 1].y, poly.points[i].x, poly.points[i].y);
-                            }
-                            else if (i === 0) {
-                                line = new Phaser.Geom.Line(poly.points[poly.points.length - 1].x, poly.points[poly.points.length - 1].y, poly.points[i].x, poly.points[i].y);
-                                lastVertex = poly.points[poly.points.length - 1];
+                            if (i - 1 >= 0) {
+                                createVertexArgs.insertAt = i;
                             }
 
-                            if (Phaser.Geom.Intersects.LineToCircle(line, pointerCircle)) {
-                                if (this.scene.hasMouseDoubleClicked) {
-                                    let distanceToIMinus1 = Phaser.Math.Distance.Between(
-                                        this.scene.input.activePointer.worldX,
-                                        this.scene.input.activePointer.worldY,
-                                        lastVertex.x,
-                                        lastVertex.y
-                                    );
-                                    let distanceToI = Phaser.Math.Distance.Between(
-                                        this.scene.input.activePointer.worldX,
-                                        this.scene.input.activePointer.worldY,
-                                        poly.points[i].x,
-                                        poly.points[i].y
-                                    );
-                                    if (distanceToIMinus1 > 16 * (1 / this.scene.cameras.main.zoom) &&
-                                        distanceToI > 16 * (1 / this.scene.cameras.main.zoom)) {
-                                        this.createVertex(createVertexArgs);
+                            if (i >= 0) {
+                                let line = null;
+
+                                let lastVertex = poly.points[i - 1];
+
+                                if (i > 0) {
+                                    line = new Phaser.Geom.Line(poly.points[i - 1].x, poly.points[i - 1].y, poly.points[i].x, poly.points[i].y);
+                                }
+                                else if (i === 0) {
+                                    line = new Phaser.Geom.Line(poly.points[poly.points.length - 1].x, poly.points[poly.points.length - 1].y, poly.points[i].x, poly.points[i].y);
+                                    lastVertex = poly.points[poly.points.length - 1];
+                                }
+
+                                if (Phaser.Geom.Intersects.LineToCircle(line, pointerCircle)) {
+                                    if (this.scene.hasMouseDoubleClicked) {
+                                        let distanceToIMinus1 = Phaser.Math.Distance.Between(
+                                            this.scene.input.activePointer.worldX,
+                                            this.scene.input.activePointer.worldY,
+                                            lastVertex.x,
+                                            lastVertex.y
+                                        );
+                                        let distanceToI = Phaser.Math.Distance.Between(
+                                            this.scene.input.activePointer.worldX,
+                                            this.scene.input.activePointer.worldY,
+                                            poly.points[i].x,
+                                            poly.points[i].y
+                                        );
+                                        if (distanceToIMinus1 > 16 * (1 / this.scene.cameras.main.zoom) &&
+                                            distanceToI > 16 * (1 / this.scene.cameras.main.zoom)) {
+                                            this.createVertex(createVertexArgs);
+                                        }
                                     }
                                 }
                             }
                         }
-                    }
 
-                    for (let i = 0; i < fixture.vertices.length; i++) {
-                        let vertex = fixture.vertices[i];
+                        for (let i = 0; i < fixture.vertices.length; i++) {
+                            let vertex = fixture.vertices[i];
 
-                        let dist = Phaser.Math.Distance.Between(vertex.x, vertex.y, this.scene.input.activePointer.worldX, this.scene.input.activePointer.worldY);
-                        if (dist < 16 * (1 / this.scene.cameras.main.zoom)) {
-                            this.amountVerticesHoveredOver++;
+                            let dist = Phaser.Math.Distance.Between(vertex.x, vertex.y, this.scene.input.activePointer.worldX, this.scene.input.activePointer.worldY);
+                            if (dist < 16 * (1 / this.scene.cameras.main.zoom)) {
+                                this.amountVerticesHoveredOver++;
 
-                            if (this.scene.isMouseDown && this.vertexDragging === null) {
-                                this.vertexDragging = vertex.id;
-                                vertex.editor.isDragging = true;
+                                if (this.scene.isMouseDown && this.vertexDragging === null) {
+                                    this.vertexDragging = vertex.id;
+                                    vertex.editor.isDragging = true;
+                                }
                             }
                         }
                     }
+                }.bind(this));
+
+                if (this.amountVerticesHoveredOver > 0) {
+                    this.isHoveringOverVertex = true;
                 }
-            }.bind(this));
-
-            if (this.amountVerticesHoveredOver > 0) {
-                this.isHoveringOverVertex = true;
-            }
 
 
-            object.fixtures.forEach(function(fixture) {
-                if (fixture.vertices !== null) {
-                    for (let i = 0; i < fixture.vertices.length; i++) {
-                        let vertex = fixture.vertices[i];
+                object.fixtures.forEach(function(fixture) {
+                    if (fixture.vertices !== null) {
+                        for (let i = 0; i < fixture.vertices.length; i++) {
+                            let vertex = fixture.vertices[i];
 
-                        if (vertex.editor.isDragging) {
-                            vertex.x = this.scene.input.activePointer.worldX;
-                            vertex.y = this.scene.input.activePointer.worldY;
+                            if (vertex.editor.isDragging) {
+                                vertex.x = this.scene.input.activePointer.worldX;
+                                vertex.y = this.scene.input.activePointer.worldY;
+                            }
                         }
                     }
+                }.bind(this));
+
+
+                this.renderOrigin();
+                if (object !== null) {
+                    this.renderObjectWithOverlays(object);
                 }
-            }.bind(this));
-
-
-            this.renderOrigin();
-            this.renderObjectWithOverlays(object);
+            }
         }
+
+        //console.log('END UPDATE');
+        //console.log('');
     }
 }
 
