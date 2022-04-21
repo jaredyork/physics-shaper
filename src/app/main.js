@@ -77,7 +77,7 @@ class EditorObject {
         this.imageKey = '';
         this.imageBase64 = '';
         this.image = null;
-        this.type = 'fromPhysicsShaper';
+        this.type = 'fromPhysicsEditor';
         this.label = 'untitled';
         this.isStatic = false;
         this.density = 0.1;
@@ -287,7 +287,7 @@ class EditorWorkspace {
         this.clearWorkspace();
 
         this.createObject();
-        this.openObjectId = this.objects.length;
+        this.openObjectId = this.objects.length - 1;
         console.log('attempting to load new image to new object (' + this.openObjectId + ')');
         let object = this.getObject(this.openObjectId);
         object.imageKey = key;
@@ -1690,25 +1690,69 @@ window.addEventListener('DOMContentLoaded', function() {
                 for (let i = 0; i < object.fixtures.length; i++) {
                     let fixture = object.fixtures[i];
 
-                    if (fixture.circle === null) {
-                        delete fixture.circle;
-                    }
-                    else {
+                    if (fixture.circle !== undefined && fixture.circle !== null) {
                         delete fixture.circle.fixture;
                         delete fixture.circle.id;
                         delete fixture.circle.editor;
                     }
 
-                    if (fixture.vertices === null) {
-                        delete fixture.vertices;
+                    if (fixture.circle !== undefined && fixture.circle !== null) {
+                        let circle = new Phaser.Geom.Circle(fixture.circle.x, fixture.circle.y, fixture.circle.radius);
+                        
+                        this.fixtureOverlayGraphics.lineStyle(2 * (1 / this.scene.cameras.main.zoom), 0x000000);
+                        this.fixtureOverlayGraphics.strokeCircleShape(circle);
+        
+                        this.fixtureOverlayGraphics.fillStyle(0x0000ff);
+                        this.fixtureOverlayGraphics.fillCircleShape(circle);
                     }
-                    else {
+
+
+                    if (fixture.vertices !== undefined && fixture.vertices !== null) {
                         for (let j = 0; j < fixture.vertices.length; j++) {
                             let vertex = fixture.vertices[j];
 
                             delete vertex.fixture;
                             delete vertex.id;
                             delete vertex.editor;
+                        }
+                    }
+        
+                    if (fixture.vertices !== undefined && fixture.vertices !== null) {
+                        let vertexPairs = PolyDecompUtilties.convertVerticesToArrayPairs(fixture.vertices);
+        
+                        console.log(vertexPairs);
+
+                        if (decomp.isSimple(vertexPairs)) {
+                            decomp.makeCCW(vertexPairs);
+                        }
+                        console.log('post makeCCW');
+
+                        fixture.vertices.length = 0;
+                        let vertexSets = [];
+        
+                        let convexPolygons = decomp.quickDecomp(vertexPairs);
+                        for (let j = 0; j < convexPolygons.length; j++) {
+                            let convexPolygon = convexPolygons[j];
+
+                            if (decomp.isSimple(convexPolygon)) {
+                                decomp.makeCCW(convexPolygon);
+                            }
+
+                            let vertexSet = [];
+                            for (let k = 0; k < convexPolygon.length; k++) {
+                                let convexVertex = convexPolygon[k];
+
+                                vertexSet.push({
+                                    x: convexVertex[0],
+                                    y: convexVertex[1]
+                                });
+                            }
+
+                            vertexSets.push(vertexSet);
+                        }
+
+                        for ( let j = 0; j < vertexSets.length; j++ ) {
+                            fixture.vertices.push( vertexSets[j] );
                         }
                     }
 
